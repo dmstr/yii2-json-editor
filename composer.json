@@ -1,0 +1,57 @@
+{
+    "name": "dmstr/yii2-json-editor",
+    "description": "Yii2 wrapper for \"json-editor/json-editor\" (is a fork of \"jdorn/json-editor\")",
+    "keywords": [
+        "yii2",
+        "json",
+        "json-editor"
+    ],
+    "type": "yii2-extension",
+    "license": "BSD-2-Clause",
+    "homepage": "https://github.com/dmstr/yii2-json-editor",
+    "authors": [
+        {
+            "name": "Marc Mautz",
+            "email": "marc@diemeisterei.de",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "yiisoft/yii2": "~2.0.0",
+        "npm-asset/json-editor": "0.*",
+        "npm-asset/select2": "~4.0",
+        "npm-asset/selectize": "~0.12.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "dmstr\\JsonEditor\\": "src"
+        }
+    },
+    "config": {
+        "preferred-install": {
+            "dmstr/*": "source",
+            "hrzg/*": "source",
+            "schmunk42/*": "source",
+            "*": "auto"
+        },
+        "fxp-asset": {
+            "installer-paths": {
+                "npm-asset-library": "vendor/npm",
+                "bower-asset-library": "vendor/bower"
+            },
+            "vcs-driver-options": {
+                "github-no-api": true
+            },
+            "git-skip-update": "2 days",
+            "pattern-skip-version": "(-build|-patch)",
+            "optimize-with-installed-packages": true,
+            "repositories": {
+                "npm-asset/json-editor": {
+                    "type": "npm-vcs",
+                    "url": "https://github.com/json-editor/json-editor"
+                }
+            }
+        }
+    }
+
+}

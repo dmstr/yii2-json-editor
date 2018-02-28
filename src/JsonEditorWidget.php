@@ -22,8 +22,8 @@ use yii\widgets\InputWidget as BaseWidget;
  * @link https://github.com/json-editor/json-editor
  * @license https://github.com/json-editor/json-editor/blob/master/LICENSE
  */
-class JsonEditorWidget extends BaseWidget{
-
+class JsonEditorWidget extends BaseWidget
+{
     /**
      * @var array the HTML attributes for the input tag.
      * @see \yii\helpers\Html::renderTagAttributes() for details on how attributes are being rendered.
@@ -91,7 +91,13 @@ class JsonEditorWidget extends BaseWidget{
      */
     private $_renderInput = true;
 
-    public function init(){
+    /**
+     * Initializes the widget
+     * @inheritdoc
+     * @throws InvalidConfigException
+     */
+    public function init()
+    {
         if ($this->name === null && !$this->hasModel() && $this->selector === null) {
             throw new InvalidConfigException("Either 'name', or 'model' and 'attribute' properties must be specified.");
         }
@@ -105,12 +111,12 @@ class JsonEditorWidget extends BaseWidget{
         }
 
         if ($this->hasModel()) {
-            $this->name = empty($this->options['name']) ? Html::getInputName($this->model, $this->attribute) : $this->options['name'];
+            $this->name  = empty($this->options['name']) ? Html::getInputName($this->model, $this->attribute) : $this->options['name'];
             $this->value = Html::getAttributeValue($this->model, $this->attribute);
         }
 
         if (!isset($this->containerOptions['id'])) {
-            $this->containerOptions['id'] = ($this->hasModel() ? Html::getInputId($this->model, $this->attribute) : $this->getId()).'-container';
+            $this->containerOptions['id'] = ($this->hasModel() ? Html::getInputId($this->model, $this->attribute) : $this->getId()) . '-container';
         }
 
         if ($this->inputId === null) {
@@ -131,6 +137,10 @@ class JsonEditorWidget extends BaseWidget{
         }
     }
 
+    /**
+     * Renders the widget
+     * @inheritdoc
+     */
     public function run()
     {
         //prepare data
@@ -147,26 +157,34 @@ class JsonEditorWidget extends BaseWidget{
 
         //render editor container
         $containerOptions = $this->containerOptions;
-        $tag = ArrayHelper::remove($containerOptions, 'tag', 'div');
+        $tag              = ArrayHelper::remove($containerOptions, 'tag', 'div');
         echo Html::tag($tag, '', $containerOptions);
 
         //prepare client options
-        $clientOptions = $this->clientOptions;
+        $clientOptions           = $this->clientOptions;
         $clientOptions['schema'] = $this->schema;
         ArrayHelper::remove($clientOptions, 'startval');
         $clientOptions = Json::encode($clientOptions);
 
         //prepare element IDs
-        $widgetId = $this->id;
-        $inputId = $this->inputId;
+        $widgetId    = $this->id;
+        $inputId     = $this->inputId;
         $containerId = $this->containerOptions['id'];
 
         if ($this->enableSelectize) {
-            $view->registerJs("JSONEditor.plugins.selectize.enable = true;\n", $view::POS_READY, 'JSONEditorEnableSelectize');
+            $view->registerJs(
+                "JSONEditor.plugins.selectize.enable = true;\n",
+                $view::POS_READY,
+                'JSONEditorEnableSelectize'
+            );
         }
 
         if ($this->enableSelect2) {
-            $view->registerJs("JSONEditor.plugins.select2.enable = true;\n", $view::POS_READY, 'JSONEditorEnableSelect2');
+            $view->registerJs(
+                "JSONEditor.plugins.select2.enable = true;\n",
+                $view::POS_READY,
+                'JSONEditorEnableSelect2'
+            );
         }
 
         $widgetJs = "var {$widgetId} = new JSONEditor(document.getElementById('{$containerId}'), {$clientOptions});\n";
@@ -179,7 +197,7 @@ class JsonEditorWidget extends BaseWidget{
         }
 
         if (!empty($parsedValue)) {
-            $encodedValue = Json::encode($parsedValue);
+            $encodedValue  = Json::encode($parsedValue);
             $readyFunction .= "try { {$widgetId}.setValue({$encodedValue}); } catch (e) { console.warn('Could not parse initial value for {$widgetId}, error: '+e); }\n";
         }
 
@@ -193,4 +211,5 @@ class JsonEditorWidget extends BaseWidget{
         parent::run();
     }
 }
+
 ?>

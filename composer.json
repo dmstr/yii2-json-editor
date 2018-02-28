@@ -27,6 +27,12 @@
             "dmstr\\JsonEditor\\": "src"
         }
     },
+    "extra": {
+        "asset-installer-paths": {
+            "npm-asset-library": "vendor/npm",
+            "bower-asset-library": "vendor/bower"
+        }
+    },
     "config": {
         "preferred-install": {
             "dmstr/*": "source",

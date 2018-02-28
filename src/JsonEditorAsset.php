@@ -13,15 +13,17 @@ use yii\web\AssetBundle;
 
 class JsonEditorAsset extends AssetBundle
 {
+    /**
+     * @var string
+     */
     public $sourcePath = '@npm/json-editor/dist';
 
+    /**
+     * @inheritdoc
+     */
     public function registerAssetFiles($view)
     {
-        if (YII_ENV_DEV) {
-            $this->js[] = 'jsoneditor.js';
-        } else {
-            $this->js[] = 'jsoneditor.min.js';
-        }
+        $this->js[] = 'jsoneditor.js';
         parent::registerAssetFiles($view);
     }
 }

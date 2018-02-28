@@ -13,13 +13,28 @@ use yii\web\AssetBundle;
 
 class Select2Asset extends AssetBundle
 {
+    /**
+     * @var string
+     */
     public $sourcePath = '@npm/select2/dist';
+
+    /**
+     * @var array
+     */
     public $css = [
-        'css/select2.min.css',
+        'css/select2.css',
     ];
+
+    /**
+     * @var array
+     */
     public $js = [
-        'js/select2.full.min.js',
+        'js/select2.full.js',
     ];
+
+    /**
+     * @var array
+     */
     public $depends = [
         'yii\bootstrap\BootstrapAsset',
         'yii\web\JqueryAsset',

@@ -18,9 +18,7 @@
     ],
     "require": {
         "yiisoft/yii2": "~2.0.0",
-        "npm-asset/json-editor": "0.*",
-        "npm-asset/select2": "~4.0",
-        "npm-asset/selectize": "~0.12.0"
+        "npm-asset/dmstr-forks--jdorn-json-editor": "~1.0.0-alpha.13"
     },
     "autoload": {
         "psr-4": {
@@ -50,13 +48,7 @@
             },
             "git-skip-update": "2 days",
             "pattern-skip-version": "(-build|-patch)",
-            "optimize-with-installed-packages": true,
-            "repositories": {
-                "npm-asset/json-editor": {
-                    "type": "npm-vcs",
-                    "url": "https://github.com/json-editor/json-editor"
-                }
-            }
+            "optimize-with-installed-packages": true
         }
     }
 

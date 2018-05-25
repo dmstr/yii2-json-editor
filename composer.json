@@ -18,7 +18,7 @@
     ],
     "require": {
         "yiisoft/yii2": "~2.0.0",
-        "npm-asset/dmstr-forks--jdorn-json-editor": "~1.0.0-alpha.13"
+        "npm-asset/json-editor--json-editor": "~1.0.0"
     },
     "autoload": {
         "psr-4": {

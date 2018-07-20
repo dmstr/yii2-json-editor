@@ -109,10 +109,10 @@ class JsonEditorWidget extends BaseWidget
      */
     public function run()
     {
-        //prepare data
+        // Prepare data
         $view = $this->getView();
 
-        //render input for results
+        // Render input for results
         if ($this->_renderInput) {
             if ($this->hasModel()) {
                 echo Html::activeHiddenInput($this->model, $this->attribute, $this->options);
@@ -121,18 +121,18 @@ class JsonEditorWidget extends BaseWidget
             }
         }
 
-        //render editor container
+        // Render editor container
         $containerOptions = $this->containerOptions;
         $tag              = ArrayHelper::remove($containerOptions, 'tag', 'div');
         echo Html::tag($tag, '', $containerOptions);
 
-        //prepare client options
+        // Prepare client options
         $clientOptions           = $this->clientOptions;
         $clientOptions['schema'] = $this->schema;
         ArrayHelper::remove($clientOptions, 'startval');
         $clientOptions = Json::encode($clientOptions);
 
-        //prepare element IDs
+        // Prepare element IDs
         $widgetId    = $this->id;
         $inputId     = $this->inputId;
         $containerId = $this->containerOptions['id'];
@@ -155,7 +155,7 @@ class JsonEditorWidget extends BaseWidget
 
         $widgetJs .= "{$widgetId}.on('ready', function() {\n{$readyFunction}\n});";
 
-        //register js code
+        // Register js code
         $view->registerJs($widgetJs, $view::POS_READY);
 
         parent::run();

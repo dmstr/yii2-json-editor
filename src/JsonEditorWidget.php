@@ -137,7 +137,8 @@ class JsonEditorWidget extends BaseWidget
         $inputId     = $this->inputId;
         $containerId = $this->containerOptions['id'];
 
-        $widgetJs = "var {$widgetId} = new JSONEditor(document.getElementById('{$containerId}'), {$clientOptions});\n";
+        // Add the "JSONEditor" instance to the global window object, otherwise the instance is only available in "ready()" function scope
+        $widgetJs = "window.{$widgetId} = new JSONEditor(document.getElementById('{$containerId}'), {$clientOptions});\n";
 
         $readyFunction = '';
         try {

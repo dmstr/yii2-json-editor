@@ -139,6 +139,8 @@ class JsonEditorWidget extends BaseWidget
 
         // Add the "JSONEditor" instance to the global window object, otherwise the instance is only available in "ready()" function scope
         $widgetJs = "window.{$widgetId} = new JSONEditor(document.getElementById('{$containerId}'), {$clientOptions});\n";
+        // Add the "JSONEditor" instance to the global window.jsonEditors array.
+        $widgetJs .= "if (!window.jsonEditors) { window.jsonEditors = []; } window.jsonEditors.push({$widgetId});";
 
         $readyFunction = '';
         try {

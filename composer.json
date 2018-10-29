@@ -22,7 +22,7 @@
     },
     "autoload": {
         "psr-4": {
-            "dmstr\\JsonEditor\\": "src"
+            "dmstr\\jsoneditor\\": "src"
         }
     },
     "config": {

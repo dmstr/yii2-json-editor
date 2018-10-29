@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-namespace dmstr\JsonEditor;
+namespace dmstr\jsoneditor;
 
 use yii\base\InvalidConfigException;
 use yii\helpers\ArrayHelper;

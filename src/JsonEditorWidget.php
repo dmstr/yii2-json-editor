@@ -101,6 +101,7 @@ class JsonEditorWidget extends BaseWidget
 
         parent::init();
         JsonEditorAsset::register($this->getView());
+        JsonEditorPluginsAsset::register($this->getView());
     }
 
     /**

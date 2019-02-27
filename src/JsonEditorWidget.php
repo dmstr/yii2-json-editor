@@ -72,6 +72,13 @@ class JsonEditorWidget extends BaseWidget
      */
     public function init()
     {
+        // if set use CKEditor configurations from settings module else use default configuration.
+        $json = \Yii::$app->settings->get('ckeditor.config', 'widgets');
+        $ckeditorConfiguration = isset($json->scalar) ? $json->scalar : "{}";
+        $script = "window.CKCONFIG = {$ckeditorConfiguration};";
+        \Yii::$app->view->registerJs($script, \yii\web\View::POS_HEAD);
+
+
         if ($this->name === null && !$this->hasModel() && $this->selector === null) {
             throw new InvalidConfigException("Either 'name', or 'model' and 'attribute' properties must be specified.");
         }
@@ -101,6 +108,7 @@ class JsonEditorWidget extends BaseWidget
 
         parent::init();
         JsonEditorAsset::register($this->getView());
+        JsonEditorPluginsAsset::register($this->getView());
     }
 
     /**

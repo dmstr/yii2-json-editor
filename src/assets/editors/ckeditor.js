@@ -116,7 +116,7 @@ JSONEditor.defaults.editors.ckeditor = JSONEditor.AbstractEditor.extend({
     if(always_disabled) this.always_disabled = true;
     this.input.disabled = true;
     if(this.instance) {
-      self.instance.setReadOnly(true);
+      this.instance.setReadOnly(true);
     }
     this._super();
   },

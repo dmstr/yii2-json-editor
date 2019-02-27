@@ -136,8 +136,8 @@ JSONEditor.defaults.editors.ckeditor = JSONEditor.AbstractEditor.extend({
 });
 
 // Make it compatible with old widgets
-/*JSONEditor.defaults.resolvers.unshift(function(schema) {
-  if(schema.type === "string" && schema.format === "filefly") {
-    return "filefly";
+JSONEditor.defaults.resolvers.unshift(function(schema) {
+  if(schema.format === "html") {
+    return "ckeditor";
   }
-});*/
+});

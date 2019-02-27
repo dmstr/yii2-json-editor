@@ -19,8 +19,8 @@ class JsonEditorPluginsAsset extends AssetBundle
     public $sourcePath = '@dmstr/jsoneditor/assets/';
 
     public $js = [
-        'selectizes.js',
-        'ckeditor.js',
+        'editors/filefly.js',
+        'editors/ckeditor.js',
     ];
 
     public $depends = [

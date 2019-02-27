@@ -95,7 +95,6 @@ JSONEditor.defaults.editors.filefly = JSONEditor.AbstractEditor.extend({
           return '<div class="" style="height: 70px">' +
             '<img class="pull-left img-responsive" alt="filefly image" style="max-width: 100px; max-height: 70px" src="' + self.path + '?action=stream&path=' + (item.path) + '" />' +
             '<span class="">' + escape(item.path) + '</span><br/>' +
-            '<span class="">' + 'banana' + '</span><br/>' +
             '</div>';
         },
         option: function (item, escape) {

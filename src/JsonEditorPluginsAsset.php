@@ -10,6 +10,9 @@
 namespace dmstr\jsoneditor;
 
 use yii\web\AssetBundle;
+use dosamigos\selectize\SelectizeAsset;
+use yii\web\JqueryAsset;
+use dosamigos\ckeditor\CKEditorAsset;
 
 class JsonEditorPluginsAsset extends AssetBundle
 {
@@ -17,6 +20,13 @@ class JsonEditorPluginsAsset extends AssetBundle
 
     public $js = [
         'selectizes.js',
+        'ckeditor.js',
+    ];
+
+    public $depends = [
+        SelectizeAsset::class,
+        CKEditorAsset::class,
+        JqueryAsset::class
     ];
 
 }

@@ -8,6 +8,7 @@ JSONEditor.defaults.editors.filefly = JSONEditor.AbstractEditor.extend({
       return;
     }
     this.input.value = value;
+    this.value = value;
     this.onChange();
   },
   register: function() {
@@ -70,7 +71,10 @@ JSONEditor.defaults.editors.filefly = JSONEditor.AbstractEditor.extend({
     this.control = this.theme.getFormControl(this.label, this.input, this.description, this.infoButton);
     this.container.appendChild(this.control);
 
-    this.initSelectize();
+    self.jsoneditor.on('ready',function() {
+      self.initSelectize();
+    });
+
   },
   postBuild: function() {
     this._super();
@@ -79,6 +83,7 @@ JSONEditor.defaults.editors.filefly = JSONEditor.AbstractEditor.extend({
   initSelectize: function() {
     var self = this;
     this.path = this.schema.path || '/filefly/api';
+    var firstLoad = false;
 
     this.selectize = $(this.input).selectize({
       valueField: 'path',
@@ -89,7 +94,8 @@ JSONEditor.defaults.editors.filefly = JSONEditor.AbstractEditor.extend({
       plugins: ['remove_button'],
       preload: true,
       options: [],
-      create: false,
+      create: true,
+      persist: true,
       render: {
         item: function (item, escape) {
           return '<div class="" style="height: 70px">' +
@@ -101,7 +107,6 @@ JSONEditor.defaults.editors.filefly = JSONEditor.AbstractEditor.extend({
           return '<div class="col-xs-6 col-sm-4 col-md-3 col-lg-2" style="height: 150px">' +
             '<img class="img-responsive" alt="filefly image" style="max-height: 100px" src="' + self.path + '?action=stream&path=' + (item.path) + '" />' +
             '<span class="">' + escape(item.path) + '</span>' +
-
             '</div>';
         }
       },
@@ -114,18 +119,23 @@ JSONEditor.defaults.editors.filefly = JSONEditor.AbstractEditor.extend({
           data: {
             action: 'search',
             q: query,
-            page_limit: 20
+            limit: 5
           },
           error: function (e) {
+            console.log('error', e)
           },
           success: function (data) {
+            //selectize.addOption({path: self.input.value, id: self.input.value, mime: ""});
             callback(data);
-            selectize.setValue(self.input.value); // set initial value
-            self.onInputChange();
+            if (!firstLoad) {
+              selectize.setValue(self.input.value);
+              firstLoad = true;
+              self.onInputChange();
+            }
           }
         });
       },
-      onDropdownClose: function () {
+      onChange: function() {
         self.input.value = this.getValue();
         self.onInputChange();
       }
@@ -134,6 +144,7 @@ JSONEditor.defaults.editors.filefly = JSONEditor.AbstractEditor.extend({
   onInputChange: function() {
     this.value = this.input.value;
     this.onChange(true);
+
   },
   onMove: function() {
     this.destroySelectize();

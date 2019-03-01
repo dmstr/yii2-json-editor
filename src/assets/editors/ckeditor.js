@@ -98,9 +98,12 @@ JSONEditor.defaults.editors.ckeditor = JSONEditor.AbstractEditor.extend({
   initCKEditor: function() {
     var self = this;
     if (window.CKCONFIG) {
+      window.CKCONFIG['extraPlugins'] = 'divarea';
       self.instance = CKEDITOR.replace(self.input, window.CKCONFIG);
     } else {
-      self.instance = CKEDITOR.replace(self.input);
+      self.instance = CKEDITOR.replace(self.input, {
+        extraPlugins: 'divarea'
+      });
     }
 
     CKEDITOR.on('instanceReady', function(evt) {

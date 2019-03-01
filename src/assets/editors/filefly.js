@@ -75,6 +75,20 @@ JSONEditor.defaults.editors.filefly = JSONEditor.AbstractEditor.extend({
       self.initSelectize();
     });
 
+    self.jsoneditor.on('addRow',function() {
+      self.initSelectize();
+    });
+
+    self.jsoneditor.on('moveRow',function() {
+      self.destroySelectize();
+      self.initSelectize();
+    });
+
+    self.jsoneditor.on('deleteRow',function() {
+      self.destroySelectize();
+      self.initSelectize();
+    });
+
   },
   postBuild: function() {
     this._super();
@@ -82,7 +96,12 @@ JSONEditor.defaults.editors.filefly = JSONEditor.AbstractEditor.extend({
   },
   initSelectize: function() {
     var self = this;
-    this.path = this.schema.path || '/filefly/api';
+    this.ajaxPath = '/filefly/api';
+
+    if (this.schema && this.schema.ajaxPath) {
+      this.ajaxPath = this.schema.ajaxPath;
+    }
+
     var firstLoad = false;
 
     this.selectize = $(this.input).selectize({
@@ -99,13 +118,13 @@ JSONEditor.defaults.editors.filefly = JSONEditor.AbstractEditor.extend({
       render: {
         item: function (item, escape) {
           return '<div class="" style="height: 70px">' +
-            '<img class="pull-left img-responsive" alt="filefly image" style="max-width: 100px; max-height: 70px" src="' + self.path + '?action=stream&path=' + (item.path) + '" />' +
+            '<img class="pull-left img-responsive" alt="filefly image" style="max-width: 100px; max-height: 70px" src="' + self.ajaxPath + '?action=stream&path=' + (item.path) + '" />' +
             '<span class="">' + escape(item.path) + '</span><br/>' +
             '</div>';
         },
         option: function (item, escape) {
           return '<div class="col-xs-6 col-sm-4 col-md-3 col-lg-2" style="height: 150px">' +
-            '<img class="img-responsive" alt="filefly image" style="max-height: 100px" src="' + self.path + '?action=stream&path=' + (item.path) + '" />' +
+            '<img class="img-responsive" alt="filefly image" style="max-height: 100px" src="' + self.ajaxPath + '?action=stream&path=' + (item.path) + '" />' +
             '<span class="">' + escape(item.path) + '</span>' +
             '</div>';
         }
@@ -113,7 +132,7 @@ JSONEditor.defaults.editors.filefly = JSONEditor.AbstractEditor.extend({
       load: function (query, callback) {
         var selectize = this;
         $.ajax({
-          url: self.path,
+          url: self.ajaxPath,
           type: 'GET',
           dataType: 'json',
           data: {
@@ -125,7 +144,6 @@ JSONEditor.defaults.editors.filefly = JSONEditor.AbstractEditor.extend({
             console.log('error', e)
           },
           success: function (data) {
-            //selectize.addOption({path: self.input.value, id: self.input.value, mime: ""});
             callback(data);
             if (!firstLoad) {
               selectize.setValue(self.input.value);
@@ -144,11 +162,6 @@ JSONEditor.defaults.editors.filefly = JSONEditor.AbstractEditor.extend({
   onInputChange: function() {
     this.value = this.input.value;
     this.onChange(true);
-
-  },
-  onMove: function() {
-    this.destroySelectize();
-    this.initSelectize();
   },
   enable: function() {
     if(!this.always_disabled) {
@@ -168,10 +181,10 @@ JSONEditor.defaults.editors.filefly = JSONEditor.AbstractEditor.extend({
     this._super();
   },
   destroy: function() {
+    this.destroySelectize();
     if(this.label && this.label.parentNode) this.label.parentNode.removeChild(this.label);
     if(this.description && this.description.parentNode) this.description.parentNode.removeChild(this.description);
     if(this.input && this.input.parentNode) this.input.parentNode.removeChild(this.input);
-    this.destroySelectize();
     this._super();
   },
   destroySelectize: function() {

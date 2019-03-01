@@ -73,12 +73,16 @@ JSONEditor.defaults.editors.ckeditor = JSONEditor.AbstractEditor.extend({
 
     self.jsoneditor.on('ready',function() {
       self.destroyCKEditor();
-      self.initCKEditor();
+      if (self.container) {
+        self.initCKEditor()
+      }
     });
 
     self.jsoneditor.on('addRow',function() {
       self.destroyCKEditor();
-      self.initCKEditor();
+      if (self.container) {
+        self.initCKEditor()
+      }
     });
 
     self.jsoneditor.on('moveRow',function() {
@@ -88,7 +92,9 @@ JSONEditor.defaults.editors.ckeditor = JSONEditor.AbstractEditor.extend({
 
     self.jsoneditor.on('deleteRow',function() {
       self.destroyCKEditor();
-      self.initCKEditor();
+      if (self.container) {
+        self.initCKEditor()
+      }
     });
   },
   postBuild: function() {

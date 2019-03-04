@@ -71,7 +71,31 @@ JSONEditor.defaults.editors.ckeditor = JSONEditor.AbstractEditor.extend({
     this.control = this.theme.getFormControl(this.label, this.input, this.description, this.infoButton);
     this.container.appendChild(this.control);
 
-    this.initCKEditor();
+    self.jsoneditor.on('ready',function() {
+      self.destroyCKEditor();
+      if (self.container) {
+        self.initCKEditor()
+      }
+    });
+
+    self.jsoneditor.on('addRow',function() {
+      self.destroyCKEditor();
+      if (self.container) {
+        self.initCKEditor()
+      }
+    });
+
+    self.jsoneditor.on('moveRow',function() {
+      self.destroyCKEditor();
+      self.initCKEditor();
+    });
+
+    self.jsoneditor.on('deleteRow',function() {
+      self.destroyCKEditor();
+      if (self.container) {
+        self.initCKEditor()
+      }
+    });
   },
   postBuild: function() {
     this._super();
@@ -80,9 +104,12 @@ JSONEditor.defaults.editors.ckeditor = JSONEditor.AbstractEditor.extend({
   initCKEditor: function() {
     var self = this;
     if (window.CKCONFIG) {
+      window.CKCONFIG['extraPlugins'] = 'divarea';
       self.instance = CKEDITOR.replace(self.input, window.CKCONFIG);
     } else {
-      self.instance = CKEDITOR.replace(self.input);
+      self.instance = CKEDITOR.replace(self.input, {
+        extraPlugins: 'divarea'
+      });
     }
 
     CKEDITOR.on('instanceReady', function(evt) {
@@ -90,6 +117,7 @@ JSONEditor.defaults.editors.ckeditor = JSONEditor.AbstractEditor.extend({
         evt.editor.setData(self.value);
       }
     });
+
     self.instance.on('change', function () {
       self.input.value = self.instance.getData();
       self.onInputChange();
@@ -98,10 +126,6 @@ JSONEditor.defaults.editors.ckeditor = JSONEditor.AbstractEditor.extend({
   onInputChange: function() {
     this.setValue(this.input.value);
     this.onChange(true);
-  },
-  onMove: function() {
-    this.destroyCKEditor();
-    this.initCKEditor();
   },
   enable: function() {
     if(!this.always_disabled) {
@@ -121,15 +145,15 @@ JSONEditor.defaults.editors.ckeditor = JSONEditor.AbstractEditor.extend({
     this._super();
   },
   destroy: function() {
+    this.destroyCKEditor();
     if(this.label && this.label.parentNode) this.label.parentNode.removeChild(this.label);
     if(this.description && this.description.parentNode) this.description.parentNode.removeChild(this.description);
     if(this.input && this.input.parentNode) this.input.parentNode.removeChild(this.input);
-    this.destroyCKEditor();
     this._super();
   },
   destroyCKEditor: function() {
     if(this.instance) {
-      this.instance.destroy();
+      this.instance.destroy(false);
       this.instance = null;
     }
   }

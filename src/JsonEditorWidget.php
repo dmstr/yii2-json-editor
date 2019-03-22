@@ -137,7 +137,17 @@ class JsonEditorWidget extends BaseWidget
         // Prepare client options
         $clientOptions           = $this->clientOptions;
         $clientOptions['schema'] = $this->schema;
-        ArrayHelper::remove($clientOptions, 'startval');
+
+        try {
+            $parsedValue = Json::decode($this->value);
+        } catch (\Exception $e) {
+            $parsedValue = null;
+        }
+
+        if (!empty($parsedValue)) {
+            $clientOptions['startval'] = $parsedValue;
+        }
+
         $clientOptions = Json::encode($clientOptions);
 
         // Prepare element IDs
@@ -151,17 +161,6 @@ class JsonEditorWidget extends BaseWidget
         $widgetJs .= "if (!window.jsonEditors) { window.jsonEditors = []; } window.jsonEditors.push(window.{$widgetId});";
 
         $readyFunction = '';
-        try {
-            $parsedValue = Json::decode($this->value);
-        } catch (\Exception $e) {
-            $parsedValue = null;
-        }
-
-        if (!empty($parsedValue)) {
-            $encodedValue  = Json::encode($parsedValue);
-            $readyFunction .= "try { {$widgetId}.setValue({$encodedValue}); } catch (e) { console.warn('Could not parse initial value for {$widgetId}, error: '+e); }\n";
-        }
-
         $readyFunction .= "{$widgetId}.on('change', function() { document.getElementById('{$inputId}').value = JSON.stringify({$widgetId}.getValue()); });\n";
 
         $widgetJs .= "{$widgetId}.on('ready', function() {\n{$readyFunction}\n});";

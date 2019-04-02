@@ -141,7 +141,8 @@ class JsonEditorWidget extends BaseWidget
         try {
             $parsedValue = Json::decode($this->value);
         } catch (\Exception $e) {
-            throw new \Exception($e->getMessage());
+            $parsedValue = null;
+            \Yii::error($e->getMessage(), __METHOD__);
         }
 
         if (!empty($parsedValue)) {

@@ -111,7 +111,7 @@ JSONEditor.defaults.editors.filefly = JSONEditor.AbstractEditor.extend({
       placeholder: 'Select a file...',
       maxItems: 1,
       plugins: ['remove_button'],
-      preload: true,
+      preload: false,
       options: [],
       create: true,
       persist: true,

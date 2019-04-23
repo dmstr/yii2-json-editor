@@ -182,9 +182,9 @@ JSONEditor.defaults.editors.filefly = JSONEditor.AbstractEditor.extend({
   },
   destroy: function() {
     this.destroySelectize();
-    if(this.label && this.label.parentNode) this.label.parentNode.removeChild(this.label);
-    if(this.description && this.description.parentNode) this.description.parentNode.removeChild(this.description);
-    if(this.input && this.input.parentNode) this.input.parentNode.removeChild(this.input);
+    if(this.label && this.label.parentNode) {this.label.parentNode.removeChild(this.label);}
+    if(this.description && this.description.parentNode) {this.description.parentNode.removeChild(this.description);}
+    if(this.input && this.input.parentNode) {this.input.parentNode.removeChild(this.input);}
     this._super();
   },
   destroySelectize: function() {

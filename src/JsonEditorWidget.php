@@ -14,6 +14,7 @@ use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\helpers\Json;
 use yii\widgets\InputWidget as BaseWidget;
+use Yii;
 
 /**
  * Yii2 wrapper widget for json-editor/json-editor.
@@ -73,11 +74,13 @@ class JsonEditorWidget extends BaseWidget
     public function init()
     {
         // if set use CKEditor configurations from settings module else use default configuration.
-        $json = \Yii::$app->settings->get('ckeditor.config', 'widgets');
-        $ckeditorConfiguration = isset($json->scalar) ? $json->scalar : "{}";
-        $script = "window.CKCONFIG = {$ckeditorConfiguration};";
-        \Yii::$app->view->registerJs($script, \yii\web\View::POS_HEAD);
-
+        // https://github.com/phemellc/yii2-settings
+        if (Yii::$app->has('settings') && Yii::$app->settings instanceof \pheme\settings\components\Settings) {
+            $json = Yii::$app->settings->get('ckeditor.config', 'widgets');
+            $ckeditorConfiguration = isset($json->scalar) ? $json->scalar : "{}";
+            $script = "window.CKCONFIG = {$ckeditorConfiguration};";
+            Yii::$app->view->registerJs($script, \yii\web\View::POS_HEAD);
+        }
 
         if ($this->name === null && !$this->hasModel() && $this->selector === null) {
             throw new InvalidConfigException("Either 'name', or 'model' and 'attribute' properties must be specified.");
@@ -142,7 +145,7 @@ class JsonEditorWidget extends BaseWidget
             $parsedValue = Json::decode($this->value);
         } catch (\Exception $e) {
             $parsedValue = null;
-            \Yii::error($e->getMessage(), __METHOD__);
+            Yii::error($e->getMessage(), __METHOD__);
         }
 
         if (!empty($parsedValue)) {

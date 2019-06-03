@@ -1,8 +1,16 @@
 # yii2-json-editor
 
-Yii2 wrapper for "[json-editor/json-editor](https://github.com/json-editor/json-editor)" (is a fork of "[jdorn/json-editor](https://github.com/jdorn/json-editor)").
+Yii2 wrapper for "[json-editor/json-editor](https://github.com/json-editor/json-editor)" (fork of "[jdorn/json-editor](https://github.com/jdorn/json-editor)").
 
-## Example
+## Configuration
+
+If you want to use additional tested plugins, such as *CKEditor*, *selectize* or *filefly* you can include the following lines in your view
+
+```
+JsonEditorPluginsAsset::register($this);
+```
+
+## Usage
 
 ```php
 $example_schema = [

@@ -10,6 +10,8 @@ If you want to use additional tested plugins, such as *CKEditor*, *selectize* or
 JsonEditorPluginsAsset::register($this);
 ```
 
+See the `suggest` section of [`composer.json`](https://github.com/dmstr/yii2-json-editor/blob/master/composer.json) for information about recommended composer packages.
+
 ## Usage
 
 ```php

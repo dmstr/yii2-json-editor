@@ -5,6 +5,25 @@ Yii2 wrapper for "[json-editor/json-editor](https://github.com/json-editor/json-
 ## Example
 
 ```php
+$example_schema = [
+    'title' => 'Example JSON form',
+    'type' => 'object',
+    'properties' => [
+        'name' => [
+            'title' => 'Full Name',
+            'type' => 'string',
+            'minLength' => 5
+        ],
+        'date' => [
+            'title' => 'Date',
+            'type' => 'string',
+            'format' => 'date',
+        ],
+    ],
+];
+```
+
+```php
 $form->field($model, 'example_field')->widget(JsonEditorWidget::className(), [
     'schema' => $example_schema,
     'clientOptions' => [

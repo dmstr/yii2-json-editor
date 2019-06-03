@@ -18,7 +18,9 @@
     ],
     "require": {
         "yiisoft/yii2": "~2.0.0",
-        "npm-asset/json-editor--json-editor": "^1.3"
+        "npm-asset/json-editor--json-editor": "^1.3",
+        "2amigos/yii2-selectize-widget": "^1.0",
+        "2amigos/yii2-ckeditor-widget": "^2.0"
     },
     "autoload": {
         "psr-4": {

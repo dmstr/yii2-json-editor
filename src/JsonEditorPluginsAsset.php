@@ -25,6 +25,7 @@ class JsonEditorPluginsAsset extends AssetBundle
     ];
 
     public $depends = [
+        JsonEditorAsset::class,
         SelectizeAsset::class,
         CKEditorAsset::class,
         JqueryAsset::class

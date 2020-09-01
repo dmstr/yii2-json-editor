@@ -111,7 +111,11 @@ JSONEditor.defaults.editors.filefly = JSONEditor.AbstractEditor.extend({
       placeholder: 'Select a file...',
       maxItems: 1,
       plugins: ['remove_button'],
-      preload: true,
+      /* DO NOT enable Preload
+        when enabled it causes item loading issues when triggering multiple move row actions
+        in a short amount of time
+       */
+      preload: false,
       options: [],
       create: true,
       persist: true,

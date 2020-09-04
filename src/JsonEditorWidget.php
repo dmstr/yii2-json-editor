@@ -163,6 +163,17 @@ class JsonEditorWidget extends BaseWidget
 
         parent::run();
     }
+
+    /**
+     * Returns JsonSchema meta-schema
+     *
+     * @return mixed|null
+     */
+    public static function metaSchema()
+    {
+        $metaSchema = file_get_contents(\Yii::getAlias(__DIR__.'/meta_schema.json'));
+        return Json::decode($metaSchema);
+    }
 }
 
 ?>

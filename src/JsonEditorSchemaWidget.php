@@ -65,10 +65,11 @@ class JsonEditorSchemaWidget extends InputWidget
     private function registerAssets()
     {
         $ajaxUrl = Url::to($this->ajaxUrl);
-        $jsonEditorContainerId = Html::getInputId($this->model, $this->jsonEditorAttribute) . '-container';
+        $jsonEditorInputId = Html::getInputId($this->model, $this->jsonEditorAttribute);
+        $jsonEditorContainerId = $jsonEditorInputId . '-container';
         $select2Id = Html::getInputId($this->model, $this->attribute);
         $jsonEditorOptions = json_encode($this->jsonEditorOptions);
-
+        
         $this->view->registerJs(<<<JS
 $("#{$select2Id}").on("select2:select", function () {
     var value = $(this).val();
@@ -89,6 +90,10 @@ $("#{$select2Id}").on("select2:select", function () {
             
             jsonEditors[index].destroy();
             jsonEditors[index] = new JSONEditor(document.getElementById("{$jsonEditorContainerId}"), jsonEditorOptions)
+            
+            jsonEditors[index].on("change", function () { 
+                document.getElementById("{$jsonEditorInputId}").value = JSON.stringify(this.getValue());
+             })
         }
     })
 });

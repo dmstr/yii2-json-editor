@@ -336,7 +336,8 @@
         "format":{
           "type":"string",
           "enum":[
-            "grid"
+            "grid",
+            "grid-strict"
           ]
         }
       }

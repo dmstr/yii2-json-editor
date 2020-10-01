@@ -73,6 +73,7 @@
           "type":"string",
           "propertyOrder":20,
           "enum":[
+            "radio",
             "color",
             "date",
             "datetime",

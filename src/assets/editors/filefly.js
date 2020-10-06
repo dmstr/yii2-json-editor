@@ -1,5 +1,8 @@
-JSONEditor.defaults.editors.filefly = JSONEditor.AbstractEditor.extend({
-  setValue: function(value) {
+var StringEditor = JSONEditor.defaults.editors.string;
+
+
+class FileflyEditor extends StringEditor {
+  setValue (value) {
     if (value === null) {
       value = '';
     }
@@ -10,32 +13,37 @@ JSONEditor.defaults.editors.filefly = JSONEditor.AbstractEditor.extend({
     this.input.value = value;
     this.value = value;
     this.onChange();
-  },
-  register: function() {
-    this._super();
+  }
+
+  register () {
+    super.register();
     if(!this.input) return;
     this.input.setAttribute('name', this.formname);
-  },
-  unregister: function() {
-    this._super();
+  }
+
+  unregister () {
+    super.unregister();
     if(!this.input) return;
     this.input.removeAttribute('name');
-  },
-  getNumColumns: function() {
+  }
+
+  getNumColumns () {
     if(!this.enum_options) return 3;
     var longest_text = this.getTitle().length;
     for(var i=0; i<this.enum_options.length; i++) {
       longest_text = Math.max(longest_text,this.enum_options[i].length+4);
     }
     return Math.min(12,Math.max(longest_text/7,2));
-  },
-  getValue: function() {
+  }
+
+  getValue () {
     if (!this.value) {
       this.value = '';
     }
     return this.value;
-  },
-  build: function() {
+  }
+
+  build () {
     var self = this;
 
     if (!this.options.compact) {
@@ -89,12 +97,14 @@ JSONEditor.defaults.editors.filefly = JSONEditor.AbstractEditor.extend({
       self.initSelectize();
     });
 
-  },
-  postBuild: function() {
-    this._super();
+  }
+
+  postBuild () {
+    super.postBuild();
     this.theme.afterInputReady(this.input);
-  },
-  initSelectize: function() {
+  }
+
+  initSelectize () {
     var self = this;
     this.ajaxPath = '/filefly/api';
 
@@ -162,42 +172,49 @@ JSONEditor.defaults.editors.filefly = JSONEditor.AbstractEditor.extend({
         self.onInputChange();
       }
     });
-  },
-  onInputChange: function() {
+  }
+
+  onInputChange () {
     this.value = this.input.value;
     this.onChange(true);
-  },
-  enable: function() {
+  }
+
+  enable () {
     if(!this.always_disabled) {
       this.input.disabled = false;
       if(this.selectize) {
         this.selectize[0].selectize.unlock();
       }
-      this._super();
+      super.enable();
     }
-  },
-  disable: function(always_disabled) {
+  }
+
+  disable (always_disabled) {
     if(always_disabled) this.always_disabled = true;
     this.input.disabled = true;
     if(this.selectize) {
       this.selectize[0].selectize.lock();
     }
-    this._super();
-  },
-  destroy: function() {
+    super.disable();
+  }
+
+  destroy () {
     this.destroySelectize();
     if(this.label && this.label.parentNode) this.label.parentNode.removeChild(this.label);
     if(this.description && this.description.parentNode) this.description.parentNode.removeChild(this.description);
     if(this.input && this.input.parentNode) this.input.parentNode.removeChild(this.input);
-    this._super();
-  },
-  destroySelectize: function() {
+    super.destroy();
+  }
+
+  destroySelectize () {
     if(this.selectize) {
       this.selectize[0].selectize.destroy();
       this.selectize = null;
     }
   }
-});
+}
+
+JSONEditor.defaults.editors.filefly = FileflyEditor
 
 // Make it compatible with old widgets
 JSONEditor.defaults.resolvers.unshift(function(schema) {

@@ -12,6 +12,16 @@ JsonEditorPluginsAsset::register($this);
 
 See the `suggest` section of [`composer.json`](https://github.com/dmstr/yii2-json-editor/blob/master/composer.json) for information about recommended composer packages.
 
+## Changelog
+
+### 1.3
+
+- updated `json-editor` to `^2.3.5` (affects custom editor `extends` usage, [see commit](https://github.com/dmstr/yii2-json-editor/commit/731dd3dce28887fabd536f5c5ba37218ba243c73))
+
+### 1.2
+
+See `git log`
+
 ## Usage
 
 ```php

@@ -141,7 +141,7 @@ class CKEditorEditor extends StringEditor {
   enable () {
     if(!this.always_disabled) {
       this.input.disabled = false;
-      if(this.instance) {
+      if(this.instance && this.instance.editable()) {
         this.instance.setReadOnly(false);
       }
       super.enable();
@@ -151,7 +151,7 @@ class CKEditorEditor extends StringEditor {
   disable (always_disabled) {
     if(always_disabled) this.always_disabled = true;
     this.input.disabled = true;
-    if(this.instance) {
+    if(this.instance && this.instance.editable()) {
       this.instance.setReadOnly(true);
     }
     super.disable();

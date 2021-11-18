@@ -66,6 +66,13 @@ class JsonEditorWidget extends BaseWidget
     public $language = null;
 
     /**
+     * if true JsonEditorPluginsAsset will be registered
+     *
+     * @var bool
+     */
+    public $registerPluginAsset = false;
+
+    /**
      * If true, a hidden input will be rendered to contain the results
      * @var boolean
      */
@@ -110,6 +117,9 @@ class JsonEditorWidget extends BaseWidget
         }
 
         parent::init();
+        if ($this->registerPluginAsset) {
+            JsonEditorPluginsAsset::register($this->getView());
+        }
         JsonEditorAsset::register($this->getView());
     }
 

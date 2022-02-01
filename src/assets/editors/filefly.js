@@ -106,72 +106,74 @@ class FileflyEditor extends StringEditor {
 
   initSelectize () {
     var self = this;
-    this.ajaxPath = '/filefly/api';
+    setTimeout(function () {
+      self.ajaxPath = '/filefly/api';
 
-    if (this.schema && this.schema.ajaxPath) {
-      this.ajaxPath = this.schema.ajaxPath;
-    }
-
-    var firstLoad = false;
-
-    this.selectize = $(this.input).selectize({
-      valueField: 'path',
-      labelField: 'path',
-      searchField: 'path',
-      placeholder: 'Select a file...',
-      maxItems: 1,
-      plugins: ['remove_button'],
-      /* DO NOT enable Preload
-        when enabled it causes item loading issues when triggering multiple move row actions
-        in a short amount of time
-       */
-      preload: false,
-      options: [],
-      create: true,
-      persist: true,
-      render: {
-        item: function (item, escape) {
-          return '<div class="" style="height: 70px">' +
-            '<img class="pull-left img-responsive" alt="filefly image" style="max-width: 100px; max-height: 70px" src="' + self.ajaxPath + '?action=stream&path=' + (item.path) + '" />' +
-            '<span class="">' + escape(item.path) + '</span><br/>' +
-            '</div>';
-        },
-        option: function (item, escape) {
-          return '<div class="col-xs-6 col-sm-4 col-md-3 col-lg-2" style="height: 150px">' +
-            '<img class="img-responsive" alt="filefly image" style="max-height: 100px" src="' + self.ajaxPath + '?action=stream&path=' + (item.path) + '" />' +
-            '<span class="">' + escape(item.path) + '</span>' +
-            '</div>';
-        }
-      },
-      load: function (query, callback) {
-        var selectize = this;
-        $.ajax({
-          url: self.ajaxPath,
-          type: 'GET',
-          dataType: 'json',
-          data: {
-            action: 'search',
-            q: query,
-            limit: 5
-          },
-          error: function (e) {
-            console.log('error', e)
-          },
-          success: function (data) {
-            callback(data);
-            if (!firstLoad) {
-              selectize.setValue(self.input.value);
-              firstLoad = true;
-              self.onInputChange();
-            }
-          }
-        });
-      },
-      onChange: function() {
-        self.input.value = this.getValue();
-        self.onInputChange();
+      if (self.schema && self.schema.ajaxPath) {
+        self.ajaxPath = self.schema.ajaxPath;
       }
-    });
+
+      var firstLoad = false;
+
+      self.selectize = $(self.input).selectize({
+        valueField: 'path',
+        labelField: 'path',
+        searchField: 'path',
+        placeholder: 'Select a file...',
+        maxItems: 1,
+        plugins: ['remove_button'],
+        /* DO NOT enable Preload
+          when enabled it causes item loading issues when triggering multiple move row actions
+          in a short amount of time
+         */
+        preload: false,
+        options: [],
+        create: true,
+        persist: true,
+        render: {
+          item: function (item, escape) {
+            return '<div class="" style="height: 70px">' +
+                '<img class="pull-left img-responsive" alt="filefly image" style="max-width: 100px; max-height: 70px" src="' + self.ajaxPath + '?action=stream&path=' + (item.path) + '" />' +
+                '<span class="">' + escape(item.path) + '</span><br/>' +
+                '</div>';
+          },
+          option: function (item, escape) {
+            return '<div class="col-xs-6 col-sm-4 col-md-3 col-lg-2" style="height: 150px">' +
+                '<img class="img-responsive" alt="filefly image" style="max-height: 100px" src="' + self.ajaxPath + '?action=stream&path=' + (item.path) + '" />' +
+                '<span class="">' + escape(item.path) + '</span>' +
+                '</div>';
+          }
+        },
+        load: function (query, callback) {
+          var selectize = this;
+          $.ajax({
+            url: self.ajaxPath,
+            type: 'GET',
+            dataType: 'json',
+            data: {
+              action: 'search',
+              q: query,
+              limit: 5
+            },
+            error: function (e) {
+              console.log('error', e)
+            },
+            success: function (data) {
+              callback(data);
+              if (!firstLoad) {
+                selectize.setValue(self.input.value);
+                firstLoad = true;
+                self.onInputChange();
+              }
+            }
+          });
+        },
+        onChange: function() {
+          self.input.value = self.getValue();
+          self.onInputChange();
+        }
+      });
+    }, 0)
   }
 
   onInputChange () {

@@ -88,12 +88,10 @@ class FileflyEditor extends StringEditor {
     });
 
     self.jsoneditor.on('moveRow',function() {
-      self.destroySelectize();
       self.initSelectize();
     });
 
     self.jsoneditor.on('deleteRow',function() {
-      self.destroySelectize();
       self.initSelectize();
     });
 
@@ -106,6 +104,7 @@ class FileflyEditor extends StringEditor {
 
   initSelectize () {
     var self = this;
+    this.destroySelectize();
     this.ajaxPath = '/filefly/api';
 
     if (this.schema && this.schema.ajaxPath) {

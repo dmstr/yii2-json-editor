@@ -142,6 +142,12 @@ class FileflyEditor extends StringEditor {
             '</div>';
         }
       },
+      onLoad: function () {
+        var selectize = this
+        setTimeout(function () {
+          selectize.open()
+        }, 0)
+      },
       load: function (query, callback) {
         var selectize = this;
         $.ajax({

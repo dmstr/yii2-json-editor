@@ -24,6 +24,10 @@ class JsonEditorPluginsAsset extends AssetBundle
         'editors/ckplugins/divarea.js',
     ];
 
+    public $css = [
+        'editors/filefly.less'
+    ];
+
     public $depends = [
         JsonEditorAsset::class,
         SelectizeAsset::class,

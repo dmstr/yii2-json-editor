@@ -13,6 +13,7 @@ use yii\base\InvalidConfigException;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\helpers\Json;
+use yii\web\View;
 use yii\widgets\InputWidget as BaseWidget;
 
 /**
@@ -77,6 +78,13 @@ class JsonEditorWidget extends BaseWidget
      * @var boolean
      */
     private $_renderInput = true;
+
+    /**
+     * Disable the editor and set it in a readonly state
+     * @var bool
+     * @link https://github.com/json-editor/json-editor#enable-and-disable-the-editor
+     */
+    public $disabled = false;
 
     /**
      * Initializes the widget
@@ -175,11 +183,15 @@ class JsonEditorWidget extends BaseWidget
 
         $readyFunction = '';
         $readyFunction .= "{$widgetId}.on('change', function() { document.getElementById('{$inputId}').value = JSON.stringify({$widgetId}.getValue()); });\n";
-
+        if ($this->disabled) {
+            // Disabled last added json editor
+            $readyFunction .= 'window.jsonEditors.slice(-1)[0].disable()';
+        }
         $widgetJs .= "{$widgetId}.on('ready', function() {\n{$readyFunction}\n});";
 
         // Register js code
         $view->registerJs($widgetJs, $view::POS_READY);
+
         $this->registerAdditionalLanguages();
 
         parent::run();

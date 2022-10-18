@@ -184,8 +184,8 @@ class JsonEditorWidget extends BaseWidget
         $readyFunction = '';
         $readyFunction .= "{$widgetId}.on('change', function() { document.getElementById('{$inputId}').value = JSON.stringify({$widgetId}.getValue()); });\n";
         if ($this->disabled) {
-            // Disabled last added json editor
-            $readyFunction .= 'window.jsonEditors.slice(-1)[0].disable()';
+            // Disabled current added json editor
+            $readyFunction .= "window['$widgetId'].disable()";
         }
         $widgetJs .= "{$widgetId}.on('ready', function() {\n{$readyFunction}\n});";
 

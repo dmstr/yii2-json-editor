@@ -102,6 +102,30 @@ class FileflyEditor extends StringEditor {
     this.theme.afterInputReady(this.input);
   }
 
+  hasImageExtension (path) {
+    if (typeof path !== 'string') {
+      throw 'path is not a string!'
+    }
+
+    var imageExtensions = ['jpg', 'jpeg', 'gif', 'svg', 'png', 'bmp']
+
+    if (window.FILEFLYCONFIG && window.FILEFLYCONFIG['imageExtensions']) {
+      imageExtensions = window.FILEFLYCONFIG['imageExtensions']
+    }
+
+    imageExtensions = imageExtensions.map(extension => {
+      return extension.toLowerCase()
+    })
+
+    var extension = path.split('.').pop().toLowerCase()
+
+    return (imageExtensions.indexOf(extension) !== -1)
+  }
+
+  hasThumbnailPreview (item) {
+    return this.hasImageExtension(item.path)
+  }
+
   initSelectize () {
     var self = this;
     this.destroySelectize();
@@ -130,16 +154,24 @@ class FileflyEditor extends StringEditor {
       persist: true,
       render: {
         item: function (item, escape) {
-          return '<div class="" style="height: 70px">' +
-            '<img class="pull-left img-responsive" alt="filefly image" style="max-width: 100px; max-height: 70px" src="' + self.ajaxPath + '?action=stream&path=' + (item.path) + '" />' +
-            '<span class="">' + escape(item.path) + '</span><br/>' +
-            '</div>';
+          if (self.hasThumbnailPreview(item)) {
+            return '<div class="" style="height: 70px">' +
+              '<img class="pull-left img-responsive" alt="filefly image" style="max-width: 100px; max-height: 70px" src="' + self.ajaxPath + '?action=stream&path=' + (item.path) + '" />' +
+              '<span class="">' + escape(item.path) + '</span><br/>' +
+              '</div>';
+          }
+
+          return '<span><i class="fa fa-file"></i> ' + escape(item.path) + '</span>'
         },
         option: function (item, escape) {
-          return '<div class="col-xs-6 col-sm-4 col-md-3 col-lg-2" style="height: 150px">' +
-            '<img class="img-responsive" alt="filefly image" style="max-height: 100px" src="' + self.ajaxPath + '?action=stream&path=' + (item.path) + '" />' +
-            '<span class="">' + escape(item.path) + '</span>' +
-            '</div>';
+          if (self.hasThumbnailPreview(item)) {
+            return '<div class="col-xs-6 col-sm-4 col-md-3 col-lg-2" style="height: 150px">' +
+              '<img class="img-responsive" alt="filefly image" style="max-height: 100px" src="' + self.ajaxPath + '?action=stream&path=' + (item.path) + '" />' +
+              '<span class="">' + escape(item.path) + '</span>' +
+              '</div>';
+          }
+
+          return '<span><i class="fa fa-file"> ' + escape(item.path) + '</span>'
         }
       },
       onLoad: function () {

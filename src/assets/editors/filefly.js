@@ -99,6 +99,7 @@ class FileflyEditor extends StringEditor {
 
   postBuild () {
     super.postBuild();
+    this.initSelectize();
     this.theme.afterInputReady(this.input);
   }
 

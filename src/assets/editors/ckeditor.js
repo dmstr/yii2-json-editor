@@ -107,6 +107,9 @@ class CKEditorEditor extends StringEditor {
 
   postBuild () {
     super.postBuild();
+    if (this.container) {
+      this.initCKEditor()
+    }
     this.theme.afterInputReady(this.input);
   }
 

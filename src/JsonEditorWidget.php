@@ -74,6 +74,27 @@ class JsonEditorWidget extends BaseWidget
     public $registerPluginAsset = false;
 
     /**
+     * if true JoditAsset will be registered
+     *
+     * @var bool
+     */
+    public $registerJoditAsset = true;
+
+    /**
+     * if true SimpleMDEAsset will be registered
+     *
+     * @var bool
+     */
+    public $registerSimpleMDEAsset = true;
+
+    /**
+     * if true SceditorAsset will be registered
+     *
+     * @var bool
+     */
+    public $registerSceditorAsset = true;
+
+    /**
      * If true, a hidden input will be rendered to contain the results
      * @var boolean
      */
@@ -106,7 +127,7 @@ class JsonEditorWidget extends BaseWidget
         }
 
         if ($this->hasModel()) {
-            $this->name  = empty($this->options['name']) ? Html::getInputName($this->model, $this->attribute) : $this->options['name'];
+            $this->name = empty($this->options['name']) ? Html::getInputName($this->model, $this->attribute) : $this->options['name'];
             $this->value = Html::getAttributeValue($this->model, $this->attribute);
         }
 
@@ -125,9 +146,40 @@ class JsonEditorWidget extends BaseWidget
         }
 
         parent::init();
+        if ($this->registerJoditAsset) {
+            JoditAsset::register($this->getView());
+
+            $this->getView()->registerJs('window.JSONEditor.defaults.options.jodit = {
+                buttons: ["classSpan", "bold", "italic", "paragraph", "ol", "ul", "link", "image", "preview", "source"],
+                toolbarAdaptive: false,
+                hidePoweredByJodithidePoweredByJodit: true,
+                spellcheckspellcheck: false,
+                controls: {
+                    classSpan: {
+                        list: {}
+                    }
+                }
+            }');
+        }
+
+        if ($this->registerSceditorAsset) {
+            SceditorAsset::register($this->getView());
+
+            $this->getView()->registerJs('window.JSONEditor.defaults.options.sceditor = {
+                toolbar: "bold,italic,font,orderedlist,bulletlist,link,image,source",
+                spellcheck: false,
+                style: ""
+            }');
+        }
+
+        if ($this->registerSimpleMDEAsset) {
+            SimpleMDEAsset::register($this->getView());
+        }
+
         if ($this->registerPluginAsset) {
             JsonEditorPluginsAsset::register($this->getView());
         }
+
         JsonEditorAsset::register($this->getView());
     }
 
@@ -151,11 +203,11 @@ class JsonEditorWidget extends BaseWidget
 
         // Render editor container
         $containerOptions = $this->containerOptions;
-        $tag              = ArrayHelper::remove($containerOptions, 'tag', 'div');
+        $tag = ArrayHelper::remove($containerOptions, 'tag', 'div');
         echo Html::tag($tag, '', $containerOptions);
 
         // Prepare client options
-        $clientOptions           = $this->clientOptions;
+        $clientOptions = $this->clientOptions;
         $clientOptions['schema'] = $this->schema;
 
         try {
@@ -172,8 +224,8 @@ class JsonEditorWidget extends BaseWidget
         $clientOptions = Json::encode($clientOptions);
 
         // Prepare element IDs
-        $widgetId    = $this->id;
-        $inputId     = $this->inputId;
+        $widgetId = $this->id;
+        $inputId = $this->inputId;
         $containerId = $this->containerOptions['id'];
 
         // Add the "JSONEditor" instance to the global window object, otherwise the instance is only available in "ready()" function scope
@@ -204,7 +256,7 @@ class JsonEditorWidget extends BaseWidget
      */
     public static function metaSchema()
     {
-        $metaSchema = file_get_contents(\Yii::getAlias(__DIR__.'/meta_schema.json'));
+        $metaSchema = file_get_contents(\Yii::getAlias(__DIR__ . '/meta_schema.json'));
         return Json::decode($metaSchema);
     }
 
@@ -217,58 +269,58 @@ class JsonEditorWidget extends BaseWidget
     {
 
         $labels = [
-            'button_add_row_title' =>  \Yii::t('json-editor', 'Add {{0}}', [], $this->language),
-            'button_collapse' =>  \Yii::t('json-editor', 'Collapse', [], $this->language),
-            'button_copy_row_title_short' =>  \Yii::t('json-editor', 'Copy', [], $this->language),
-            'button_delete_all' =>  \Yii::t('json-editor', 'All', [], $this->language),
-            'button_delete_all_title' =>  \Yii::t('json-editor', 'Delete All', [], $this->language),
-            'button_delete_last' =>  \Yii::t('json-editor', 'Last {{0}}', [], $this->language),
-            'button_delete_last_title' =>  \Yii::t('json-editor', 'Delete Last {{0}}', [], $this->language),
-            'button_delete_node_warning' =>  \Yii::t('json-editor', 'Are you sure you want to remove this node?', [], $this->language),
-            'button_delete_row_title' =>  \Yii::t('json-editor', 'Delete {{0}}', [], $this->language),
-            'button_delete_row_title_short' =>  \Yii::t('json-editor', 'Delete', [], $this->language),
-            'button_expand' =>  \Yii::t('json-editor', 'Expand', [], $this->language),
-            'button_move_down_title' =>  \Yii::t('json-editor', 'Move down', [], $this->language),
-            'button_move_up_title' =>  \Yii::t('json-editor', 'Move up', [], $this->language),
-            'button_object_properties' =>  \Yii::t('json-editor', 'Object Properties', [], $this->language),
-            'choices_placeholder_text' =>  \Yii::t('json-editor', 'Start typing to add value', [], $this->language),
-            'default_array_item_title' =>  \Yii::t('json-editor', 'item', [], $this->language),
-            'error_additionalItems' =>  \Yii::t('json-editor', 'No additional items allowed in this array', [], $this->language),
-            'error_additional_properties' =>  \Yii::t('json-editor', 'No additional properties allowed, but property {{0}} is set', [], $this->language),
-            'error_anyOf' =>  \Yii::t('json-editor', 'Value must validate against at least one of the provided schemas', [], $this->language),
-            'error_date' =>  \Yii::t('json-editor', 'Date must be in the format {{0}}', [], $this->language),
-            'error_datetime_local' =>  \Yii::t('json-editor', 'Datetime must be in the format {{0}}', [], $this->language),
-            'error_dependency' =>  \Yii::t('json-editor', 'Must have property {{0}}', [], $this->language),
-            'error_disallow' =>  \Yii::t('json-editor', 'Value must not be of type {{0}}', [], $this->language),
-            'error_disallow_union' =>  \Yii::t('json-editor', 'Value must not be one of the provided disallowed types', [], $this->language),
-            'error_enum' =>  \Yii::t('json-editor', 'Value must be one of the enumerated values', [], $this->language),
-            'error_hostname' =>  \Yii::t('json-editor', 'The hostname has the wrong format', [], $this->language),
-            'error_invalid_epoch' =>  \Yii::t('json-editor', 'Date must be greater than 1 January 1970', [], $this->language),
-            'error_ipv4' =>  \Yii::t('json-editor', 'Value must be a valid IPv4 address in the form of 4 numbers between 0 and 255, separated by dots', [], $this->language),
-            'error_ipv6' =>  \Yii::t('json-editor', 'Value must be a valid IPv6 address', [], $this->language),
-            'error_maxItems' =>  \Yii::t('json-editor', 'Value must have at most {{0}} items', [], $this->language),
-            'error_maxLength' =>  \Yii::t('json-editor', 'Value must be at most {{0}} characters long', [], $this->language),
-            'error_maxProperties' =>  \Yii::t('json-editor', 'Object must have at most {{0}} properties', [], $this->language),
-            'error_maximum_excl' =>  \Yii::t('json-editor', 'Value must be less than {{0}}', [], $this->language),
-            'error_maximum_incl' =>  \Yii::t('json-editor', 'Value must be at most {{0}}', [], $this->language),
-            'error_minItems' =>  \Yii::t('json-editor', 'Value must have at least {{0}} items', [], $this->language),
-            'error_minLength' =>  \Yii::t('json-editor', 'Value must be at least {{0}} characters long', [], $this->language),
-            'error_minProperties' =>  \Yii::t('json-editor', 'Object must have at least {{0}} properties', [], $this->language),
-            'error_minimum_excl' =>  \Yii::t('json-editor', 'Value must be greater than {{0}}', [], $this->language),
-            'error_minimum_incl' =>  \Yii::t('json-editor', 'Value must be at least {{0}}', [], $this->language),
-            'error_multipleOf' =>  \Yii::t('json-editor', 'Value must be a multiple of {{0}}', [], $this->language),
-            'error_not' =>  \Yii::t('json-editor', 'Value must not validate against the provided schema', [], $this->language),
-            'error_notempty' =>  \Yii::t('json-editor', 'Value required', [], $this->language),
-            'error_notset' =>  \Yii::t('json-editor', 'Property must be set', [], $this->language),
-            'error_oneOf' =>  \Yii::t('json-editor', 'Value must validate against exactly one of the provided schemas. It currently validates against {{0}} of the schemas.', [], $this->language),
-            'error_pattern' =>  \Yii::t('json-editor', 'Value must match the pattern {{0}}', [], $this->language),
-            'error_required' =>  \Yii::t('json-editor', 'Object is missing the required property \"{{0}}\"', [], $this->language),
-            'error_time' =>  \Yii::t('json-editor', 'Time must be in the format {{0}}', [], $this->language),
-            'error_type' =>  \Yii::t('json-editor', 'Value must be of type {{0}}', [], $this->language),
-            'error_type_union' =>  \Yii::t('json-editor', 'Value must be one of the provided types', [], $this->language),
-            'error_uniqueItems' =>  \Yii::t('json-editor', 'Array must have unique items', [], $this->language),
-            'flatpickr_clear_button' =>  \Yii::t('json-editor', 'Clear', [], $this->language),
-            'flatpickr_toggle_button' =>  \Yii::t('json-editor', 'Toggle', [], $this->language),
+            'button_add_row_title' => \Yii::t('json-editor', 'Add {{0}}', [], $this->language),
+            'button_collapse' => \Yii::t('json-editor', 'Collapse', [], $this->language),
+            'button_copy_row_title_short' => \Yii::t('json-editor', 'Copy', [], $this->language),
+            'button_delete_all' => \Yii::t('json-editor', 'All', [], $this->language),
+            'button_delete_all_title' => \Yii::t('json-editor', 'Delete All', [], $this->language),
+            'button_delete_last' => \Yii::t('json-editor', 'Last {{0}}', [], $this->language),
+            'button_delete_last_title' => \Yii::t('json-editor', 'Delete Last {{0}}', [], $this->language),
+            'button_delete_node_warning' => \Yii::t('json-editor', 'Are you sure you want to remove this node?', [], $this->language),
+            'button_delete_row_title' => \Yii::t('json-editor', 'Delete {{0}}', [], $this->language),
+            'button_delete_row_title_short' => \Yii::t('json-editor', 'Delete', [], $this->language),
+            'button_expand' => \Yii::t('json-editor', 'Expand', [], $this->language),
+            'button_move_down_title' => \Yii::t('json-editor', 'Move down', [], $this->language),
+            'button_move_up_title' => \Yii::t('json-editor', 'Move up', [], $this->language),
+            'button_object_properties' => \Yii::t('json-editor', 'Object Properties', [], $this->language),
+            'choices_placeholder_text' => \Yii::t('json-editor', 'Start typing to add value', [], $this->language),
+            'default_array_item_title' => \Yii::t('json-editor', 'item', [], $this->language),
+            'error_additionalItems' => \Yii::t('json-editor', 'No additional items allowed in this array', [], $this->language),
+            'error_additional_properties' => \Yii::t('json-editor', 'No additional properties allowed, but property {{0}} is set', [], $this->language),
+            'error_anyOf' => \Yii::t('json-editor', 'Value must validate against at least one of the provided schemas', [], $this->language),
+            'error_date' => \Yii::t('json-editor', 'Date must be in the format {{0}}', [], $this->language),
+            'error_datetime_local' => \Yii::t('json-editor', 'Datetime must be in the format {{0}}', [], $this->language),
+            'error_dependency' => \Yii::t('json-editor', 'Must have property {{0}}', [], $this->language),
+            'error_disallow' => \Yii::t('json-editor', 'Value must not be of type {{0}}', [], $this->language),
+            'error_disallow_union' => \Yii::t('json-editor', 'Value must not be one of the provided disallowed types', [], $this->language),
+            'error_enum' => \Yii::t('json-editor', 'Value must be one of the enumerated values', [], $this->language),
+            'error_hostname' => \Yii::t('json-editor', 'The hostname has the wrong format', [], $this->language),
+            'error_invalid_epoch' => \Yii::t('json-editor', 'Date must be greater than 1 January 1970', [], $this->language),
+            'error_ipv4' => \Yii::t('json-editor', 'Value must be a valid IPv4 address in the form of 4 numbers between 0 and 255, separated by dots', [], $this->language),
+            'error_ipv6' => \Yii::t('json-editor', 'Value must be a valid IPv6 address', [], $this->language),
+            'error_maxItems' => \Yii::t('json-editor', 'Value must have at most {{0}} items', [], $this->language),
+            'error_maxLength' => \Yii::t('json-editor', 'Value must be at most {{0}} characters long', [], $this->language),
+            'error_maxProperties' => \Yii::t('json-editor', 'Object must have at most {{0}} properties', [], $this->language),
+            'error_maximum_excl' => \Yii::t('json-editor', 'Value must be less than {{0}}', [], $this->language),
+            'error_maximum_incl' => \Yii::t('json-editor', 'Value must be at most {{0}}', [], $this->language),
+            'error_minItems' => \Yii::t('json-editor', 'Value must have at least {{0}} items', [], $this->language),
+            'error_minLength' => \Yii::t('json-editor', 'Value must be at least {{0}} characters long', [], $this->language),
+            'error_minProperties' => \Yii::t('json-editor', 'Object must have at least {{0}} properties', [], $this->language),
+            'error_minimum_excl' => \Yii::t('json-editor', 'Value must be greater than {{0}}', [], $this->language),
+            'error_minimum_incl' => \Yii::t('json-editor', 'Value must be at least {{0}}', [], $this->language),
+            'error_multipleOf' => \Yii::t('json-editor', 'Value must be a multiple of {{0}}', [], $this->language),
+            'error_not' => \Yii::t('json-editor', 'Value must not validate against the provided schema', [], $this->language),
+            'error_notempty' => \Yii::t('json-editor', 'Value required', [], $this->language),
+            'error_notset' => \Yii::t('json-editor', 'Property must be set', [], $this->language),
+            'error_oneOf' => \Yii::t('json-editor', 'Value must validate against exactly one of the provided schemas. It currently validates against {{0}} of the schemas.', [], $this->language),
+            'error_pattern' => \Yii::t('json-editor', 'Value must match the pattern {{0}}', [], $this->language),
+            'error_required' => \Yii::t('json-editor', 'Object is missing the required property \"{{0}}\"', [], $this->language),
+            'error_time' => \Yii::t('json-editor', 'Time must be in the format {{0}}', [], $this->language),
+            'error_type' => \Yii::t('json-editor', 'Value must be of type {{0}}', [], $this->language),
+            'error_type_union' => \Yii::t('json-editor', 'Value must be one of the provided types', [], $this->language),
+            'error_uniqueItems' => \Yii::t('json-editor', 'Array must have unique items', [], $this->language),
+            'flatpickr_clear_button' => \Yii::t('json-editor', 'Clear', [], $this->language),
+            'flatpickr_toggle_button' => \Yii::t('json-editor', 'Toggle', [], $this->language),
         ];
 
         return Json::encode($labels);

@@ -9,12 +9,13 @@
 
 namespace dmstr\jsoneditor;
 
+use Yii;
 use yii\base\InvalidConfigException;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\helpers\Json;
-use yii\web\View;
 use yii\widgets\InputWidget as BaseWidget;
+use dosamigos\ckeditor\CKEditorAsset;
 
 /**
  * Yii2 wrapper widget for json-editor/json-editor.
@@ -74,25 +75,32 @@ class JsonEditorWidget extends BaseWidget
     public $registerPluginAsset = false;
 
     /**
+     * if true CKEditorAsset will be registered
+     *
+     * @var bool
+     */
+    public $registerCKEditorAsset = true;
+
+    /**
      * if true JoditAsset will be registered
      *
      * @var bool
      */
-    public $registerJoditAsset = true;
+    public $registerJoditAsset = false;
 
     /**
      * if true SimpleMDEAsset will be registered
      *
      * @var bool
      */
-    public $registerSimpleMDEAsset = true;
+    public $registerSimpleMDEAsset = false;
 
     /**
      * if true SceditorAsset will be registered
      *
      * @var bool
      */
-    public $registerSceditorAsset = true;
+    public $registerSceditorAsset = false;
 
     /**
      * If true, a hidden input will be rendered to contain the results
@@ -146,30 +154,45 @@ class JsonEditorWidget extends BaseWidget
         }
 
         parent::init();
+
+        if ($this->registerCKEditorAsset) {
+            CKEditorAsset::register($this->getView());
+        }
+
         if ($this->registerJoditAsset) {
             JoditAsset::register($this->getView());
 
-            $this->getView()->registerJs('window.JSONEditor.defaults.options.jodit = {
-                buttons: ["classSpan", "bold", "italic", "paragraph", "ol", "ul", "link", "image", "preview", "source"],
-                toolbarAdaptive: false,
-                hidePoweredByJodithidePoweredByJodit: true,
-                spellcheckspellcheck: false,
-                controls: {
-                    classSpan: {
-                        list: {}
-                    }
+            // jodit options: https://xdsoft.net/jodit/docs/options.html
+            $joditConfig = '{
+              "buttons": ["classSpan", "bold", "italic", "paragraph", "ol", "ul", "link", "image", "preview", "source"],
+              "toolbarAdaptive": false,
+              "hidePoweredByJodithidePoweredByJodit": true,
+              "spellcheckspellcheck": false,
+              "controls": {
+                "classSpan": {
+                  "list": {}
                 }
-            }');
+              }
+            }';
+
+            $json = Yii::$app->settings->getOrSet('jodit.config', $joditConfig, 'jsoneditor', 'object');
+            $joditSettings = $json->scalar ?? $joditConfig;
+            $this->getView()->registerJs('window.JSONEditor.defaults.options.jodit = ' . $this->sanitizeJSON($joditSettings, $joditConfig));
         }
 
         if ($this->registerSceditorAsset) {
             SceditorAsset::register($this->getView());
 
-            $this->getView()->registerJs('window.JSONEditor.defaults.options.sceditor = {
-                toolbar: "bold,italic,font,orderedlist,bulletlist,link,image,source",
-                spellcheck: false,
-                style: ""
-            }');
+            // sceditor options: https://www.sceditor.com/documentation/options/
+            $sceditorConfig = '{
+              "toolbar": "bold,italic,orderedlist,bulletlist,link,image,source",
+              "spellcheck": false,
+              "style": ""
+            }';
+
+            $json = Yii::$app->settings->getOrSet('sceditor.config', $sceditorConfig, 'jsoneditor', 'object');
+            $sceditorSettings = $json->scalar ?? $sceditorConfig;
+            $this->getView()->registerJs('window.JSONEditor.defaults.options.sceditor = ' . $this->sanitizeJSON($sceditorSettings, $sceditorConfig));
         }
 
         if ($this->registerSimpleMDEAsset) {
@@ -181,6 +204,24 @@ class JsonEditorWidget extends BaseWidget
         }
 
         JsonEditorAsset::register($this->getView());
+    }
+
+    /**
+     * @param $dirtyJSON
+     * @param $defaultJSON
+     * @return string
+     */
+    protected function sanitizeJSON($dirtyJSON, $defaultJSON)
+    {
+        try {
+            json_decode($dirtyJSON, null, 512, JSON_THROW_ON_ERROR);
+        } catch(\Exception $exception) {
+            Yii::error($exception->getMessage());
+            return $defaultJSON;
+        }
+
+        // dirtyJSON is valid JSON string
+        return $dirtyJSON;
     }
 
     /**

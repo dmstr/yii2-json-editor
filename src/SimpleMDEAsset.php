@@ -10,9 +10,6 @@
 namespace dmstr\jsoneditor;
 
 use yii\web\AssetBundle;
-use dosamigos\selectize\SelectizeAsset;
-use yii\web\JqueryAsset;
-use dosamigos\ckeditor\CKEditorAsset;
 
 class SimpleMDEAsset extends AssetBundle
 {

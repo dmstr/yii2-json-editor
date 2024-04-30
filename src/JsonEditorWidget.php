@@ -175,9 +175,14 @@ class JsonEditorWidget extends BaseWidget
               }
             }';
 
-            $json = Yii::$app->settings->getOrSet('jodit.config', $joditConfig, 'jsoneditor', 'object');
-            $joditSettings = $json->scalar ?? $joditConfig;
-            $this->getView()->registerJs('window.JSONEditor.defaults.options.jodit = ' . $this->sanitizeJSON($joditSettings, $joditConfig));
+            if (Yii::$app->has('settings')) {
+                $json = Yii::$app->settings->getOrSet('jodit.config', $joditConfig, 'jsoneditor', 'object');
+                $joditSettings = $json->scalar ?? $joditConfig;
+                $this->getView()->registerJs('window.JSONEditor.defaults.options.jodit = ' . $this->sanitizeJSON($joditSettings, $joditConfig));
+            } else {
+                $this->getView()->registerJs('window.JSONEditor.defaults.options.jodit = ' . $joditConfig);
+            }
+
         }
 
         if ($this->registerSceditorAsset) {
@@ -190,9 +195,13 @@ class JsonEditorWidget extends BaseWidget
               "style": ""
             }';
 
-            $json = Yii::$app->settings->getOrSet('sceditor.config', $sceditorConfig, 'jsoneditor', 'object');
-            $sceditorSettings = $json->scalar ?? $sceditorConfig;
-            $this->getView()->registerJs('window.JSONEditor.defaults.options.sceditor = ' . $this->sanitizeJSON($sceditorSettings, $sceditorConfig));
+            if (Yii::$app->has('settings')) {
+                $json = Yii::$app->settings->getOrSet('sceditor.config', $sceditorConfig, 'jsoneditor', 'object');
+                $sceditorSettings = $json->scalar ?? $sceditorConfig;
+                $this->getView()->registerJs('window.JSONEditor.defaults.options.sceditor = ' . $this->sanitizeJSON($sceditorSettings, $sceditorConfig));
+            } else {
+                $this->getView()->registerJs('window.JSONEditor.defaults.options.sceditor = ' . $sceditorConfig);
+            }
         }
 
         if ($this->registerSimpleMDEAsset) {

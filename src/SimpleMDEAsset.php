@@ -13,7 +13,7 @@ use yii\web\AssetBundle;
 
 class SimpleMDEAsset extends AssetBundle
 {
-    public $sourcePath = '@dmstr/jsoneditor/assets/simplemde';
+    public $sourcePath =  __DIR__ . '/assets/simplemde';
 
     public $js = [
         'simplemde.min.js',

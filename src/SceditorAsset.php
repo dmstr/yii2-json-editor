@@ -14,7 +14,7 @@ use yii\web\JqueryAsset;
 
 class SceditorAsset extends AssetBundle
 {
-    public $sourcePath = '@dmstr/jsoneditor/assets/sceditor/minified';
+    public $sourcePath =  __DIR__ . '/assets/sceditor/minified';
 
     public $js = [
         'sceditor.min.js',

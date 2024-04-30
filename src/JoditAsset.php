@@ -13,13 +13,13 @@ use yii\web\AssetBundle;
 
 class JoditAsset extends AssetBundle
 {
-    public $sourcePath = '@dmstr/jsoneditor/assets/';
+    public $sourcePath = __DIR__ . '/assets/jodit';
 
     public $js = [
-        'jodit/jodit.min.js',
+        'jodit.min.js',
     ];
 
     public $css = [
-        'jodit/jodit.min.css'
+        'jodit.min.css'
     ];
 }

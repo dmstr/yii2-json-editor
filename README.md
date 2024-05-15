@@ -55,3 +55,26 @@ $form->field($model, 'example_field')->widget(JsonEditorWidget::className(), [
     ],
 ]);
 ```
+
+## Plugin Bundles
+
+This packages contains optional asset bundles for specialized plugings that can be rgistered when activated in the
+configuration array.
+
+- CKEditorAsset (active per default for backward compatibility reasons)
+- JoditAsset
+- SceditorAsset
+- SimpleMDEAsset
+
+```php
+$form->field($model, 'example_field')->widget(JsonEditorWidget::className(), [
+    'schema' => $example_schema,
+    'registerCKEditorAsset' => true, // CKEditorAsset will be registered (default true)
+    'registerJoditAsset' => true, // JoditAsset will be registered (default false)
+    'registerSceditorAsset' => true, // SceditorAsset will be registered (default false)
+    'registerSimpleMDEAsset' => true, // SimpleMDEAsset will be registered (default false)
+    'clientOptions' => [
+        'theme' => 'bootstrap3',
+    ]
+]);
+```

@@ -10,27 +10,22 @@
 namespace dmstr\jsoneditor;
 
 use yii\web\AssetBundle;
-use dosamigos\selectize\SelectizeAsset;
 use yii\web\JqueryAsset;
 
-class JsonEditorPluginsAsset extends AssetBundle
+class SceditorAsset extends AssetBundle
 {
-    public $sourcePath = '@dmstr/jsoneditor/assets/';
+    public $sourcePath =  __DIR__ . '/assets/sceditor/minified';
 
     public $js = [
-        'editors/filefly.js',
-        'editors/ckeditor.js',
-        'editors/ckplugins/divarea.js',
+        'sceditor.min.js',
+        'formats/xhtml.js',
     ];
 
     public $css = [
-        'editors/filefly.less'
+        'themes/default.min.css',
     ];
 
     public $depends = [
-        JsonEditorAsset::class,
-        SelectizeAsset::class,
         JqueryAsset::class
     ];
-
 }

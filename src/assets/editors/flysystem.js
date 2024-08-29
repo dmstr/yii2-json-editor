@@ -106,13 +106,34 @@ class FlysystemEditor extends StringEditor {
     return (item && item.extraMetadata && item.extraMetadata.thumbnail)
   }
 
+  hasImageExtension (path) {
+    if (typeof path !== 'string') {
+      throw 'path is not a string!'
+    }
+
+    var imageExtensions = ['jpg', 'jpeg', 'gif', 'svg', 'png', 'bmp']
+
+    imageExtensions = imageExtensions.map(extension => {
+      return extension.toLowerCase()
+    })
+
+    var extension = path.split('.').pop().toLowerCase()
+
+    return (imageExtensions.indexOf(extension) !== -1)
+  }
+
   initSelectize() {
     var self = this;
     this.destroySelectize();
     this.searchUrl = '/filemanager/api/search';
+    this.streamUrl = '/filemanager/api/stream';
 
     if (this.schema && this.schema.searchUrl) {
       this.searchUrl = this.schema.searchUrl;
+    }
+
+    if (this.schema && this.schema.streamUrl) {
+      this.streamUrl = this.schema.streamUrl;
     }
 
     var firstLoad = false;
@@ -130,10 +151,9 @@ class FlysystemEditor extends StringEditor {
       persist: false,
       render: {
         item: function (item, escape) {
-          console.log('item', item)
-          if (self.hasThumbnailPreview(item)) {
+          if (self.hasImageExtension(item.fullPath)) {
             return '<div class="" style="height: 70px">' +
-              '<img class="pull-left img-responsive" alt="flysystem image" style="max-width: 100px; max-height: 70px" src="' + escape(item.extraMetadata.thumbnail) + '" />' +
+              '<img class="pull-left img-responsive" alt="flysystem image" style="max-width: 100px; max-height: 70px" src="' + escape(self.streamUrl) + '?path=' + escape(item.fullPath) + '" />' +
               '<span class="">' + escape(item.name) + '</span><br/>' +
               '</div>';
           }
@@ -141,7 +161,6 @@ class FlysystemEditor extends StringEditor {
           return '<span><i class="fa fa-file"></i> ' + escape(item.name) + '</span>';
         },
         option: function (item, escape) {
-          console.log('option', item)
           if (self.hasThumbnailPreview(item)) {
             return '<div class="col-xs-6 col-sm-4 col-md-3 col-lg-2" style="height: 150px">' +
               '<img class="img-responsive" alt="flysystem image" style="max-height: 100px" src="' + escape(item.extraMetadata.thumbnail) + '" />' +

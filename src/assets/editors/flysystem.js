@@ -1,256 +1,155 @@
-var StringEditor = JSONEditor.defaults.editors.string;
+var StringEditor = JSONEditor.defaults.editors.string
 
 class FlysystemEditor extends StringEditor {
   setValue(value) {
-    if (value === null) {
-      value = '';
-    }
+    value = value || ''
+    if (this.value === value) return
 
-    if (this.value === value) {
-      return;
-    }
-    this.input.value = value;
-    this.value = value;
-    this.onChange();
-  }
-
-  register() {
-    super.register();
-    if (!this.input) return;
-    this.input.setAttribute('name', this.formname);
-  }
-
-  unregister() {
-    super.unregister();
-    if (!this.input) return;
-    this.input.removeAttribute('name');
-  }
-
-  getNumColumns() {
-    if (!this.enum_options) return 3;
-    var longest_text = this.getTitle().length;
-    for (var i = 0; i < this.enum_options.length; i++) {
-      longest_text = Math.max(longest_text, this.enum_options[i].length + 4);
-    }
-    return Math.min(12, Math.max(longest_text / 7, 2));
-  }
-
-  getValue() {
-    if (!this.value) {
-      this.value = '';
-    }
-    return this.value;
+    this.input.value = value
+    this.value = value
+    this.setOption(value)
+    this.onChange()
   }
 
   build() {
-    var self = this;
+    this.selectInput = this.theme.getSelectInput()
+    this.input = this.theme.getFormInputField('hidden')
 
-    if (!this.options.compact) {
-      this.header = this.label = this.theme.getFormInputLabel(this.getTitle());
-    }
+    this.input.addEventListener('change', (e) => {
+      e.preventDefault()
+      e.stopPropagation()
+      this.onInputChange()
+    })
 
-    if (this.schema.description) {
-      this.description = this.theme.getFormInputDescription(this.schema.description);
-    }
-
-    if (this.options.infoText) {
-      this.infoButton = this.theme.getInfoButton(this.options.infoText);
-    }
-
-    if (this.options.compact) {
-      this.container.classList.add('compact');
-    }
-
-    this.input = this.theme.getFormInputField('text');
-
-
-    if (this.schema.readOnly || this.schema.readonly) {
-      this.always_disabled = true;
-      this.input.disabled = true;
-    }
-
-    this.input.addEventListener('change', function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      self.onInputChange();
-    });
-
-    this.control = this.theme.getFormControl(this.label, this.input, this.description, this.infoButton);
-    this.container.appendChild(this.control);
-
-    self.jsoneditor.on('ready', function () {
-      self.initSelectize();
-    });
-
-    self.jsoneditor.on('addRow', function () {
-      self.initSelectize();
-    });
-
-    self.jsoneditor.on('moveRow', function () {
-      self.initSelectize();
-    });
-
-    self.jsoneditor.on('deleteRow', function () {
-      self.initSelectize();
-    });
-
+    this.control = this.theme.getFormControl(this.label, this.input, this.description, this.infoButton)
+    this.container.appendChild(this.control)
+    this.control.appendChild(this.selectInput)
   }
 
   postBuild() {
-    super.postBuild();
-    this.initSelectize();
-    this.theme.afterInputReady(this.input);
+    super.postBuild()
+    this.initSelect2()
+    this.theme.afterInputReady(this.input)
   }
 
-  hasThumbnailPreview(item) {
-    return (item && item.extraMetadata && item.extraMetadata.thumbnail)
-  }
-
-  hasImageExtension (path) {
+  hasImageExtension(path) {
     if (typeof path !== 'string') {
       throw 'path is not a string!'
     }
 
-    var imageExtensions = ['jpg', 'jpeg', 'gif', 'svg', 'png', 'bmp']
+    const imageExtensions = ['jpg', 'jpeg', 'gif', 'svg', 'png', 'bmp'].map(ext => ext.toLowerCase())
+    const extension = path.split('.').pop().toLowerCase()
 
-    imageExtensions = imageExtensions.map(extension => {
-      return extension.toLowerCase()
-    })
-
-    var extension = path.split('.').pop().toLowerCase()
-
-    return (imageExtensions.indexOf(extension) !== -1)
+    return imageExtensions.includes(extension)
   }
 
-  initSelectize() {
-    var self = this;
-    this.destroySelectize();
-    this.searchUrl = '/filemanager/api/search';
-    this.streamUrl = '/filemanager/api/stream';
+  initSelect2() {
+    this.destroySelect2()
+    this.searchUrl = this.schema?.searchUrl || '/filemanager/api/search'
+    this.streamUrl = this.schema?.streamUrl || '/filemanager/api/stream'
 
-    if (this.schema && this.schema.searchUrl) {
-      this.searchUrl = this.schema.searchUrl;
-    }
+    this.select2instance = $(this.selectInput).select2({
+      theme: 'krajee-bs3',
+      ajax: {
+        cache: true,
+        url: this.searchUrl,
+        dataType: 'json',
+        delay: 250,
+        data: (params) => ({
+          q: params.term,
+          page: params.page || 0 // Send the page number to the server
+        }),
+        processResults: (data, params) => {
+          params.page = params.page || 0
 
-    if (this.schema && this.schema.streamUrl) {
-      this.streamUrl = this.schema.streamUrl;
-    }
-
-    var firstLoad = false;
-
-    this.selectize = $(this.input).selectize({
-      valueField: 'fullPath',
-      labelField: 'name',
-      searchField: 'name',
-      placeholder: 'Search for a file...',
-      maxItems: 1,
-      plugins: ['remove_button'],
-      preload: false,
-      options: [],
-      create: true,
-      persist: false,
-      render: {
-        item: function (item, escape) {
-          if (self.hasImageExtension(item.fullPath)) {
-            return '<div class="" style="height: 70px">' +
-              '<img class="pull-left img-responsive" alt="flysystem image" style="max-width: 100px; max-height: 70px" src="' + escape(self.streamUrl) + '?path=' + escape(item.fullPath) + '" />' +
-              '<span class="">' + escape(item.name) + '</span><br/>' +
-              '</div>';
-          }
-
-          return '<span><i class="fa fa-file"></i> ' + escape(item.name) + '</span>';
-        },
-        option: function (item, escape) {
-          if (self.hasThumbnailPreview(item)) {
-            return '<div class="col-xs-6 col-sm-4 col-md-3 col-lg-2" style="height: 150px">' +
-              '<img class="img-responsive" alt="flysystem image" style="max-height: 100px" src="' + escape(item.extraMetadata.thumbnail) + '" />' +
-              '<span class="">' + escape(item.name) + '</span>' +
-              '</div>';
-          }
-
-          return '<span><i class="fa fa-file"> ' + escape(item.name) + '</span>';
-        }
-      },
-      onLoad: function () {
-        var selectize = this
-        setTimeout(function () {
-          selectize.open()
-        }, 0)
-      },
-      load: function (query, callback) {
-        var selectize = this;
-        $.ajax({
-          url: self.searchUrl,
-          type: 'GET',
-          dataType: 'json',
-          data: {
-            q: query
-          },
-          error: function (e) {
-            console.log('error', e)
-          },
-          success: function (data) {
-            callback(data);
-            if (!firstLoad) {
-              selectize.setValue(self.input.value);
-              firstLoad = true;
-              self.onInputChange();
+          return {
+            results: data.results.map(item => ({
+              id: item.fullPath
+            })),
+            pagination: {
+              more: data.pagination.more // Indicate if there are more results https://select2.org/data-sources/ajax#pagination
             }
           }
-        });
+        }
       },
-      onChange: function () {
-        self.input.value = this.getValue();
-        self.onInputChange();
-      }
-    });
+      error: (jqXHR, textStatus, errorThrown) => {
+        console.error('AJAX error:', textStatus, errorThrown)
+      },
+      placeholder: 'Search for a file...',
+      allowClear: true,
+      debug: true,
+      minimumInputLength: 0,
+      templateResult: (item) => {
+        if (item.loading) return item.id
+        if (this.hasImageExtension(item.id)) {
+          return $(`<span><img src='${this.streamUrl}?path=${item.id}' style='max-width: 70px; max-height: 70px;' /> ${item.id}</span>`)
+        }
+        return $(`<span><i class='fa fa-file' style='font-size: 50px;'></i> ${item.id}</span>`)
+      },
+      templateSelection: (item) => {
+        if (!item.id) {
+          return item.text;
+        }
+
+        if (item.id && this.hasImageExtension(item.id)) {
+          return $(`<span><img src='${this.streamUrl}?path=${item.id}' style='max-width: 20px; max-height: 20px;' /> ${item.id}</span>`)
+        }
+        return $(`<span><i class='fa fa-file'></i> ${item.id}</span>`)
+      },
+      escapeMarkup: (markup) => markup
+    })
+
+    this.select2instance.on('select2:select', (e) => {
+      this.input.value = e.params.data.id
+      this.onInputChange()
+    })
+
+    this.select2instance.on('select2:clear', (e) => {
+      this.input.value = ''
+      this.onInputChange()
+
+      setTimeout(() => {
+        this.select2instance.select2('close');
+      })
+    })
+
+    this.setOption(this.input.value)
+  }
+
+  setOption(value) {
+    const option = new Option(value, value, true, true)
+    $(this.selectInput).append(option)
   }
 
   onInputChange() {
-    this.value = this.input.value;
-    this.onChange(true);
-  }
+    this.value = this.select2instance.val()
 
-  enable() {
-    if (!this.always_disabled) {
-      this.input.disabled = false;
-      if (this.selectize) {
-        this.selectize[0].selectize.unlock();
-      }
-      super.enable();
+    if (this.value !== '') {
+      this.setOption(this.value)
     }
-  }
 
-  disable(always_disabled) {
-    if (always_disabled) this.always_disabled = true;
-    this.input.disabled = true;
-    if (this.selectize) {
-      this.selectize[0].selectize.lock();
-    }
-    super.disable();
+    this.onChange(true)
   }
 
   destroy() {
-    this.destroySelectize();
-    if (this.label && this.label.parentNode) this.label.parentNode.removeChild(this.label);
-    if (this.description && this.description.parentNode) this.description.parentNode.removeChild(this.description);
-    if (this.input && this.input.parentNode) this.input.parentNode.removeChild(this.input);
-    super.destroy();
+    this.destroySelect2()
+    if (this.label && this.label.parentNode) this.label.parentNode.removeChild(this.label)
+    if (this.description && this.description.parentNode) this.description.parentNode.removeChild(this.description)
+    if (this.input && this.input.parentNode) this.input.parentNode.removeChild(this.input)
+    super.destroy()
   }
 
-  destroySelectize() {
-    if (this.selectize) {
-      this.selectize[0].selectize.destroy();
-      this.selectize = null;
+  destroySelect2() {
+    if ($(this.input).data('select2')) {
+      $(this.input).select2('destroy')
     }
   }
 }
 
-JSONEditor.defaults.editors.flysystem = FlysystemEditor;
+JSONEditor.defaults.editors.flysystem = FlysystemEditor
 
-// Make it compatible with old widgets
 JSONEditor.defaults.resolvers.unshift(function (schema) {
-  if (schema.type === "string" && schema.format === "flysystem") {
-    return "flysystem";
+  if (schema.type === 'string' && schema.format === 'flysystem') {
+    return 'flysystem'
   }
-});
+})

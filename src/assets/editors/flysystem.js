@@ -49,6 +49,7 @@ class FlysystemEditor extends StringEditor {
     this.streamUrl = this.schema?.streamUrl || '/filemanager/api/stream'
 
     this.select2instance = $(this.selectInput).select2({
+      width: '100%',
       theme: 'krajee-bs3',
       ajax: {
         cache: true,

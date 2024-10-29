@@ -31,22 +31,41 @@ class JsonEditorValidatorHelper
             }
         }
 
-        $result = $validator->validate(Helper::toJSON($json), Helper::toJSON($jsonSchema));
+        try {
+            $result = $validator->validate(Helper::toJSON($json), Helper::toJSON($jsonSchema));
 
-        if ($result->isValid()) {
-            return [];
-        } else {
-            $formatter = new ErrorFormatter();
-            $error = $result->error();
-            $errors = $formatter->formatFlat( $error, function ($error) use ($formatter) {
-                return [
-                    'keyword' => $error->keyword(),
-                    'path' => $formatter->formatErrorKey($error),
-                    'message' => implode(', ', $formatter->format($error, false))
-                ];
-            });
-
-            return $errors;
+            if ($result->isValid()) {
+                return [];
+            } else {
+                return $this->formatErrors($result->error());
+            }
+        } catch (\Exception $e) {
+            return [
+                [
+                    'keyword' => 'exception',
+                    'path' => '/',
+                    'message' => 'Validation could not be performed correctly due to: ' . $e->getMessage()
+                ]
+            ];
         }
+    }
+
+    /**
+     * Format validation errors into a structured array.
+     *
+     * @param \Opis\JsonSchema\Errors\ValidationError $error
+     * @return array The array of formatted validation errors.
+     */
+    protected function formatErrors($error)
+    {
+        $formatter = new ErrorFormatter();
+
+        return $formatter->formatFlat($error, function ($error) use ($formatter) {
+            return [
+                'keyword' => $error->keyword(),
+                'path' => $formatter->formatErrorKey($error),
+                'message' => implode(', ', $formatter->format($error, false))
+            ];
+        });
     }
 }

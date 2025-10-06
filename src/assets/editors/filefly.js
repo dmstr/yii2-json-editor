@@ -151,7 +151,7 @@ class FileflyEditor extends StringEditor {
        */
       preload: false,
       options: [],
-      create: true,
+      create: false,
       persist: true,
       render: {
         item: function (item, escape) {

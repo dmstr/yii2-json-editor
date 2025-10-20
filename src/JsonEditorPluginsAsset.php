@@ -10,7 +10,7 @@
 namespace dmstr\jsoneditor;
 
 use kartik\select2\Select2Asset;
-use kartik\select2\ThemeKrajeeBs3Asset;
+use kartik\select2\ThemeKrajeeBs5Asset;
 use yii\web\AssetBundle;
 use yii\web\JqueryAsset;
 
@@ -32,7 +32,7 @@ class JsonEditorPluginsAsset extends AssetBundle
     public $depends = [
         JsonEditorAsset::class,
         Select2Asset::class,
-        ThemeKrajeeBs3Asset::class,
+        ThemeKrajeeBs5Asset::class,
         JqueryAsset::class
     ];
 }

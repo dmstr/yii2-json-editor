@@ -12,7 +12,6 @@ namespace dmstr\jsoneditor;
 use kartik\select2\Select2Asset;
 use kartik\select2\ThemeKrajeeBs3Asset;
 use yii\web\AssetBundle;
-use dosamigos\selectize\SelectizeAsset;
 use yii\web\JqueryAsset;
 
 class JsonEditorPluginsAsset extends AssetBundle
@@ -32,7 +31,6 @@ class JsonEditorPluginsAsset extends AssetBundle
 
     public $depends = [
         JsonEditorAsset::class,
-        SelectizeAsset::class,
         Select2Asset::class,
         ThemeKrajeeBs3Asset::class,
         JqueryAsset::class

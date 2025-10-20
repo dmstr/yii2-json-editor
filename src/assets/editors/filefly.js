@@ -128,6 +128,7 @@ class FileflyEditor extends StringEditor {
   }
 
   initSelectize () {
+    console.error('NOT IMPLEMENTED YET!')
     var self = this;
     this.destroySelectize();
     this.ajaxPath = '/filefly/api';

@@ -13,6 +13,7 @@ use Yii;
 use yii\base\InvalidConfigException;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
+use yii\helpers\HtmlPurifier;
 use yii\helpers\Json;
 use yii\widgets\InputWidget as BaseWidget;
 use dosamigos\ckeditor\CKEditorAsset;
@@ -261,7 +262,8 @@ class JsonEditorWidget extends BaseWidget
         $clientOptions['schema'] = $this->schema;
 
         try {
-            $parsedValue = Json::decode($this->value);
+            $purified = HtmlPurifier::process($this->value);
+            $parsedValue = Json::decode($purified);
         } catch (\Exception $e) {
             $parsedValue = null;
             \Yii::error($e->getMessage(), __METHOD__);

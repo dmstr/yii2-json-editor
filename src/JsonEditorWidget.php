@@ -217,6 +217,24 @@ class JsonEditorWidget extends BaseWidget
     }
 
     /**
+     * Recursively apply HtmlPurifier to all string values in an array/scalar.
+     * Allows common safe HTML produced by the WYSIWYG editors (CKEditor, Jodit, Sceditor).
+     *
+     * @param mixed $data
+     * @return mixed
+     */
+    protected function purifyRecursive($data)
+    {
+        if (is_string($data)) {
+            return HtmlPurifier::process($data);
+        }
+        if (is_array($data)) {
+            return array_map([$this, 'purifyRecursive'], $data);
+        }
+        return $data;
+    }
+
+    /**
      * @param $dirtyJSON
      * @param $defaultJSON
      * @return string
@@ -262,8 +280,8 @@ class JsonEditorWidget extends BaseWidget
         $clientOptions['schema'] = $this->schema;
 
         try {
-            $purified = HtmlPurifier::process($this->value);
-            $parsedValue = Json::decode($purified);
+            $parsedValue = Json::decode($this->value);
+            $parsedValue = $this->purifyRecursive($parsedValue);
         } catch (\Exception $e) {
             $parsedValue = null;
             \Yii::error($e->getMessage(), __METHOD__);

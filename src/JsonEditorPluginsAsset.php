@@ -22,6 +22,7 @@ class JsonEditorPluginsAsset extends AssetBundle
     public $js = [
         'editors/filefly.js',
         'editors/flysystem.js',
+        'editors/flysystem-rest.js',
         'editors/ckeditor.js',
         'editors/ckplugins/divarea.js',
     ];

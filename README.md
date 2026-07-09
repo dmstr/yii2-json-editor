@@ -56,6 +56,69 @@ $form->field($model, 'example_field')->widget(JsonEditorWidget::className(), [
 ]);
 ```
 
+## File picker editors
+
+Three string editors render a file picker instead of a plain text input. They
+all store a single file path as the field value and are selected via the
+schema `format`:
+
+| `format`         | Backend                                      | Widget    | Auth (default)   |
+|------------------|----------------------------------------------|-----------|------------------|
+| `filefly`        | FileFly (`/filefly/api`)                     | selectize | session/cookie   |
+| `flysystem`      | generic filesystem API (`/filemanager/api`)  | select2   | session/none     |
+| `flysystem-rest` | `eluhr/yii2-flysystem-rest-api`             | selectize | session/cookie   |
+
+### `flysystem-rest` (drop-in replacement for `filefly`)
+
+`flysystem-rest` mirrors the `filefly` editor (selectize UI, image thumbnail
+preview, array row handling) but targets the
+[`eluhr/yii2-flysystem-rest-api`](https://git.hrzg.de/e.luhr/yii2-flysystem-rest-api)
+module.
+
+By default it works exactly like `filefly`: **session/cookie auth on the same
+origin, no client configuration.** The read endpoints it uses (`search` and
+`stream`) are `GET` and accept the logged-in backend session when the API
+module runs with `enableSessionAuth`. The browser sends the auth cookie
+automatically, so nothing has to be passed through the widget — consumers only
+set the schema `format`. The default base URL is `/filemanager/api`.
+
+Migrating an existing `filefly` field is just a format change:
+
+```php
+'file' => [
+    'type' => 'string',
+    'format' => 'flysystem-rest',
+    // optional per-field overrides:
+    // 'apiBaseUrl' => '/filemanager/api',
+    // 'storageId'  => 'my-storage',
+],
+```
+
+That is all that is required for the common (same-origin backend) case.
+
+#### Advanced: overriding defaults / stateless JWT auth
+
+For a different mount point, a storage filter, or **stateless JWT auth** (e.g.
+a cross-origin or programmatic setup), the widget can inject a global
+`window.FLYSYSTEMRESTCONFIG` via the optional `flysystemRestConfig` option:
+
+```php
+$form->field($model, 'example_field')->widget(JsonEditorWidget::class, [
+    'schema' => $example_schema,
+    'registerPluginAsset' => true,
+    'flysystemRestConfig' => [
+        'apiBaseUrl'      => \yii\helpers\Url::to(['/filemanager/api'], true),
+        'jwt'             => $jwt,   // only for JWT auth mode; omit for session
+        'storageId'       => null,
+        'imageExtensions' => ['jpg', 'jpeg', 'gif', 'svg', 'png', 'bmp'],
+    ],
+]);
+```
+
+When `jwt` is set, the editor sends `Authorization: Bearer <jwt>` on the
+`search` request; otherwise it relies on the session cookie. The `stream`
+endpoint (thumbnail previews) always uses plain image `src` URLs.
+
 ## Plugin Bundles
 
 This packages contains optional asset bundles for specialized plugings that can be rgistered when activated in the

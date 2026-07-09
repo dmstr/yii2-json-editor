@@ -104,6 +104,25 @@ class JsonEditorWidget extends BaseWidget
     public $registerSceditorAsset = false;
 
     /**
+     * Configuration for the "flysystem-rest" file picker editor (see
+     * src/assets/editors/flysystem-rest.js). When set, it is exposed to the
+     * client as the global `window.FLYSYSTEMRESTCONFIG` object and used by the
+     * editor to reach the eluhr/yii2-flysystem-rest-api endpoints.
+     *
+     * Recognized keys:
+     *  - apiBaseUrl:      module route base without trailing slash, e.g. '/filesystem-rest/api'
+     *  - jwt:             bearer token for the (JWT protected) search request
+     *  - storageId:       optional storage id filter
+     *  - imageExtensions: array of extensions that get a thumbnail preview
+     *
+     * Registering the plugin asset ($registerPluginAsset) is required for the
+     * editor to be available.
+     *
+     * @var array|null
+     */
+    public $flysystemRestConfig = null;
+
+    /**
      * If true, a hidden input will be rendered to contain the results
      * @var boolean
      */
@@ -211,6 +230,14 @@ class JsonEditorWidget extends BaseWidget
 
         if ($this->registerPluginAsset) {
             JsonEditorPluginsAsset::register($this->getView());
+        }
+
+        if ($this->flysystemRestConfig !== null) {
+            $this->getView()->registerJs(
+                'window.FLYSYSTEMRESTCONFIG = ' . Json::encode($this->flysystemRestConfig) . ';',
+                \yii\web\View::POS_HEAD,
+                'flysystem-rest-config'
+            );
         }
 
         JsonEditorAsset::register($this->getView());

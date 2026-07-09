@@ -62,53 +62,62 @@ Three string editors render a file picker instead of a plain text input. They
 all store a single file path as the field value and are selected via the
 schema `format`:
 
-| `format`         | Backend                                   | Widget          | Auth            |
-|------------------|-------------------------------------------|-----------------|-----------------|
-| `filefly`        | FileFly (`/filefly/api`)                  | selectize       | session/cookie  |
-| `flysystem`      | generic filesystem API (`/filemanager/api`) | select2       | none            |
-| `flysystem-rest` | `eluhr/yii2-flysystem-rest-api`           | selectize       | JWT bearer      |
+| `format`         | Backend                                      | Widget    | Auth (default)   |
+|------------------|----------------------------------------------|-----------|------------------|
+| `filefly`        | FileFly (`/filefly/api`)                     | selectize | session/cookie   |
+| `flysystem`      | generic filesystem API (`/filemanager/api`)  | select2   | session/none     |
+| `flysystem-rest` | `eluhr/yii2-flysystem-rest-api`             | selectize | session/cookie   |
 
 ### `flysystem-rest` (drop-in replacement for `filefly`)
 
 `flysystem-rest` mirrors the `filefly` editor (selectize UI, image thumbnail
 preview, array row handling) but targets the
-[`eluhr/yii2-flysystem-rest-api`](https://packagist.org/packages/eluhr/yii2-flysystem-rest-api)
-module. Migrating an existing `filefly` field is a matter of changing the
-schema `format` and pointing the editor at the module:
+[`eluhr/yii2-flysystem-rest-api`](https://git.hrzg.de/e.luhr/yii2-flysystem-rest-api)
+module.
+
+By default it works exactly like `filefly`: **session/cookie auth on the same
+origin, no client configuration.** The read endpoints it uses (`search` and
+`stream`) are `GET` and accept the logged-in backend session when the API
+module runs with `enableSessionAuth`. The browser sends the auth cookie
+automatically, so nothing has to be passed through the widget — consumers only
+set the schema `format`. The default base URL is `/filemanager/api`.
+
+Migrating an existing `filefly` field is just a format change:
 
 ```php
-// schema property
 'file' => [
     'type' => 'string',
     'format' => 'flysystem-rest',
     // optional per-field overrides:
-    // 'apiBaseUrl' => '/filesystem-rest/api',
+    // 'apiBaseUrl' => '/filemanager/api',
     // 'storageId'  => 'my-storage',
 ],
 ```
 
-Because the API `search` action is JWT protected, the bearer token has to be
-made available to the client. The widget injects it as
-`window.FLYSYSTEMRESTCONFIG` when you pass `flysystemRestConfig`:
+That is all that is required for the common (same-origin backend) case.
+
+#### Advanced: overriding defaults / stateless JWT auth
+
+For a different mount point, a storage filter, or **stateless JWT auth** (e.g.
+a cross-origin or programmatic setup), the widget can inject a global
+`window.FLYSYSTEMRESTCONFIG` via the optional `flysystemRestConfig` option:
 
 ```php
 $form->field($model, 'example_field')->widget(JsonEditorWidget::class, [
     'schema' => $example_schema,
     'registerPluginAsset' => true,
     'flysystemRestConfig' => [
-        // module route base, WITHOUT trailing slash
-        'apiBaseUrl' => \yii\helpers\Url::to(['/filesystem-rest/api'], true),
-        // bearer token issued for the current user
-        'jwt' => $jwt,
-        // optional storage id filter and thumbnail extensions
-        'storageId' => null,
+        'apiBaseUrl'      => \yii\helpers\Url::to(['/filemanager/api'], true),
+        'jwt'             => $jwt,   // only for JWT auth mode; omit for session
+        'storageId'       => null,
         'imageExtensions' => ['jpg', 'jpeg', 'gif', 'svg', 'png', 'bmp'],
     ],
 ]);
 ```
 
-The `stream` endpoint (used for thumbnail previews) is not JWT protected, so no
-token is sent for image `src` URLs.
+When `jwt` is set, the editor sends `Authorization: Bearer <jwt>` on the
+`search` request; otherwise it relies on the session cookie. The `stream`
+endpoint (thumbnail previews) always uses plain image `src` URLs.
 
 ## Plugin Bundles
 

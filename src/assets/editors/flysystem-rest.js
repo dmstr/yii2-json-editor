@@ -4,20 +4,28 @@
 //
 // This is a filefly.js compatible drop-in replacement: same selectize UI,
 // same value semantics (stores a single file path string) and the same
-// array row re-init handling. The differences to filefly.js are the backend
-// contract:
+// array row re-init handling. Backend contract:
 //
-//   - search:  GET  {apiBaseUrl}/search?q=&page=&storageId=   (JWT protected)
-//   - stream:  GET  {apiBaseUrl}/stream?path=                  (no auth)
+//   - search:  GET  {apiBaseUrl}/search?q=&page=&storageId=
+//   - stream:  GET  {apiBaseUrl}/stream?path=
 //
-// The search endpoint requires an "Authorization: Bearer <jwt>" header. Since
-// the JWT is only available server side it is injected into a global config
-// object by the widget / view:
+// Auth: like filefly, the default is SESSION auth on a same-origin backend.
+// The read endpoints (search, stream, download) are all GET and accept the
+// logged-in session (module option `enableSessionAuth`), so the browser sends
+// the auth cookie automatically and NO client configuration is required. This
+// is what keeps it a true drop-in: consumers only set the schema `format`,
+// nothing has to be threaded through each widget call site.
+//
+// The default base URL is `/filemanager/api` (same as the flysystem editor).
+//
+// Everything below is OPTIONAL and only needed to deviate from those defaults
+// (e.g. a different mount point, a storage filter, or stateless JWT auth for a
+// cross-origin / programmatic setup). Global defaults:
 //
 //   window.FLYSYSTEMRESTCONFIG = {
-//     apiBaseUrl: '/filesystem-rest/api', // module route base, no trailing slash
-//     jwt: '<token>',                     // bearer token for the search request
-//     storageId: null,                    // optional storage id filter
+//     apiBaseUrl: '/filemanager/api',  // module route base, no trailing slash
+//     jwt: null,                       // OPTIONAL bearer token (JWT auth mode)
+//     storageId: null,                 // optional storage id filter
 //     imageExtensions: ['jpg', 'jpeg', 'gif', 'svg', 'png', 'bmp']
 //   }
 //
@@ -165,7 +173,7 @@ class FlysystemRestEditor extends StringEditor {
 
     // resolve backend configuration: schema overrides win over global config
     var config = this.config();
-    this.apiBaseUrl = (this.schema && this.schema.apiBaseUrl) || config.apiBaseUrl || '/filesystem-rest/api';
+    this.apiBaseUrl = (this.schema && this.schema.apiBaseUrl) || config.apiBaseUrl || '/filemanager/api';
     // strip trailing slash for consistent URL building
     this.apiBaseUrl = this.apiBaseUrl.replace(/\/+$/, '');
     this.storageId = (this.schema && this.schema.storageId) || config.storageId || null;

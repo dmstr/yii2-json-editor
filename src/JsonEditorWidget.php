@@ -33,6 +33,8 @@ class JsonEditorWidget extends BaseWidget
      */
     public $options = [];
 
+    public $validationAction = null;
+
     /**
      * An array that contains the schema to build the form from.
      * Required. Json::encode will be used.
@@ -321,14 +323,96 @@ class JsonEditorWidget extends BaseWidget
         $clientOptions = Json::encode($clientOptions);
 
         // Prepare element IDs
+        $widgetRefName = $this->model->formName() . $this->attribute;
         $widgetId = $this->id;
         $inputId = $this->inputId;
         $containerId = $this->containerOptions['id'];
 
         // Add the "JSONEditor" instance to the global window object, otherwise the instance is only available in "ready()" function scope
-        $widgetJs = "window.{$widgetId} = new JSONEditor(document.getElementById('{$containerId}'), {$clientOptions});\n";
+        $widgetJs = "";
+
+        $widgetJs .= "window.{$widgetId} = new JSONEditor(document.getElementById('{$containerId}'), {$clientOptions});\n";
         // Add the "JSONEditor" instance to the global window.jsonEditors array.
         $widgetJs .= "if (!window.jsonEditors) { window.jsonEditors = []; } window.jsonEditors.push(window.{$widgetId});";
+
+        $widgetJs .= "window.{$widgetRefName} = window.{$widgetId};";
+
+
+
+
+
+
+        $widgetJs .= "window.{$widgetRefName} = {};";
+        $widgetJs .= "window.{$widgetRefName}.editor = window.{$widgetId};";
+
+        if (!empty($this->validationAction)) {
+            $csrfToken = Yii::$app->request->getCsrfToken();
+            $schema = json_encode($this->schema);
+
+            $widgetJs .= <<<JS
+                window.{$widgetRefName}.validate = (forceDirty = false) => {
+                  const json = window.{$widgetRefName}.editor.getValue();
+                  const jsonSchema = JSON.parse('{$schema}');
+                  
+                  fetch('{$this->validationAction}', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'X-CSRF-Token': '{$csrfToken}'
+                    },
+                    body: JSON.stringify({
+                        json: json,
+                        jsonSchema: jsonSchema
+                    })
+                  })
+                  .then(response => response.json())
+                  .then(data => {
+                    if (data.status === 'error') {
+                      const root = window.{$widgetRefName}.editor.root.formname;
+                
+                      const mappedErrors = data.errors.map((error) => {
+                        error.path = error.path.replace(/^\//, root + '.').replace(/\//g, '.');
+                
+                        if (error.path === root + '.') {
+                          error.path = root;
+                        }
+                
+                        return error;
+                      });
+                      
+                      for (let key in window.{$widgetRefName}.editor.editors) {
+                        const childEditor = window.{$widgetRefName}.editor.editors[key];
+                        
+                        if (childEditor) {
+                          if (forceDirty) {
+                            childEditor.is_dirty = true;
+                          }
+                          
+                          if (childEditor.is_dirty) {
+                            childEditor.showValidationErrors(mappedErrors);
+                            childEditor.is_dirty = false;
+                          }
+                        }
+                      }
+                    }
+                  })
+                  .catch((error) => {
+                    console.error('Error:', error);
+                  });
+                };
+                
+                setTimeout(() => {
+                    window.{$widgetRefName}.editor.on('change', function () {
+                        window.{$widgetRefName}.validate();
+                    });
+                });
+            JS;
+
+            if ($this->model->hasErrors()) {
+                $widgetJs .= "setTimeout(() => { window.{$widgetRefName}.validate(true); });";
+            }
+        }
+
 
         $readyFunction = '';
         $readyFunction .= "{$widgetId}.on('change', function() { document.getElementById('{$inputId}').value = JSON.stringify({$widgetId}.getValue()); });\n";

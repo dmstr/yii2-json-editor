@@ -123,6 +123,38 @@ class JsonEditorWidget extends BaseWidget
     public $flysystemRestConfig = null;
 
     /**
+     * Configuration for the HTMLPurifier run that is applied to the existing
+     * value when the form is rendered, see {@see purifyRecursive()}.
+     *
+     * Accepts anything `\yii\helpers\HtmlPurifier::process()` accepts:
+     *  - array:    HTMLPurifier config directives
+     *  - \Closure: receives the `\HTMLPurifier_Config` instance, required for
+     *              custom elements/attributes (HTML5 tags, `data-*`)
+     *  - false:    skip purifying on the read path entirely. Only do this if
+     *              the value is purified elsewhere, e.g. on frontend output.
+     *
+     * The default keeps `id` attributes and link targets, which HTMLPurifier
+     * would otherwise drop from stored WYSIWYG content on every render/save
+     * cycle.
+     *
+     * Example for allowing HTML5 elements:
+     *
+     * ```php
+     * 'purifyOptions' => function ($config) {
+     *     $def = $config->getHTMLDefinition(true);
+     *     $def->addElement('figure', 'Block', 'Flow', 'Common');
+     *     $def->addElement('figcaption', 'Block', 'Flow', 'Common');
+     * },
+     * ```
+     *
+     * @var array|\Closure|false
+     */
+    public $purifyOptions = [
+        'Attr.EnableID' => true,
+        'Attr.AllowedFrameTargets' => ['_blank', '_self', '_parent', '_top'],
+    ];
+
+    /**
      * If true, a hidden input will be rendered to contain the results
      * @var boolean
      */
@@ -252,8 +284,11 @@ class JsonEditorWidget extends BaseWidget
      */
     protected function purifyRecursive($data)
     {
+        if ($this->purifyOptions === false) {
+            return $data;
+        }
         if (is_string($data)) {
-            return HtmlPurifier::process($data);
+            return HtmlPurifier::process($data, $this->purifyOptions);
         }
         if (is_array($data)) {
             return array_map([$this, 'purifyRecursive'], $data);

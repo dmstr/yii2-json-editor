@@ -104,6 +104,22 @@ class JsonEditorWidget extends BaseWidget
     public $registerSceditorAsset = false;
 
     /**
+     * if true DomPurifyAsset will be registered to make DOMPurify available globally
+     *
+     * @var bool
+     */
+    public $registerDomPurifyAsset = false;
+
+    /**
+     * Options to pass to DOMPurify.setConfig() on the client side.
+     * Only used if registerDomPurifyAsset is true.
+     * See https://github.com/cure53/DOMPurify#configuration
+     *
+     * @var array
+     */
+    public $domPurifyOptions = [];
+
+    /**
      * Configuration for the "flysystem-rest" file picker editor (see
      * src/assets/editors/flysystem-rest.js). When set, it is exposed to the
      * client as the global `window.FLYSYSTEMRESTCONFIG` object and used by the
@@ -206,6 +222,10 @@ class JsonEditorWidget extends BaseWidget
         }
 
         parent::init();
+
+        if ($this->registerDomPurifyAsset) {
+            DomPurifyAsset::register($this->getView());
+        }
 
         if ($this->registerCKEditorAsset) {
             CKEditorAsset::register($this->getView());
@@ -354,6 +374,12 @@ class JsonEditorWidget extends BaseWidget
         }
 
         $clientOptions = Json::encode($clientOptions);
+
+        // Configure DOMPurify if asset is registered and options are provided
+        if ($this->registerDomPurifyAsset && !empty($this->domPurifyOptions)) {
+            $domPurifyOptionsJs = Json::encode($this->domPurifyOptions);
+            $view->registerJs("if (window.DOMPurify) { window.DOMPurify.setConfig({$domPurifyOptionsJs}); }", $view::POS_BEGIN);
+        }
 
         // Prepare element IDs
         $widgetId = $this->id;

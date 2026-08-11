@@ -1,4 +1,5 @@
 <?php
+// file generated with AI assistance: Claude Code - 2026-08-11 00:00:00 UTC
 /**
  * @link http://www.diemeisterei.de/
  * @copyright Copyright (c) 2018 diemeisterei GmbH, Stuttgart
@@ -375,10 +376,18 @@ class JsonEditorWidget extends BaseWidget
 
         $clientOptions = Json::encode($clientOptions);
 
-        // Configure DOMPurify if asset is registered and options are provided
+        // Configure DOMPurify if asset is registered and options are provided.
+        // Must be POS_END: DomPurifyAsset registers purify.min.js as a regular
+        // asset file, which Yii places at POS_END. Inline POS_END scripts are
+        // rendered after all POS_END files and before POS_READY, so this runs
+        // with `window.DOMPurify` present and still before the editor is built.
         if ($this->registerDomPurifyAsset && !empty($this->domPurifyOptions)) {
             $domPurifyOptionsJs = Json::encode($this->domPurifyOptions);
-            $view->registerJs("if (window.DOMPurify) { window.DOMPurify.setConfig({$domPurifyOptionsJs}); }", $view::POS_BEGIN);
+            $view->registerJs(
+                "if (window.DOMPurify) { window.DOMPurify.setConfig({$domPurifyOptionsJs}); }"
+                . " else { console.warn('[json-editor] DOMPurify not loaded, domPurifyOptions ignored'); }",
+                $view::POS_END
+            );
         }
 
         // Prepare element IDs

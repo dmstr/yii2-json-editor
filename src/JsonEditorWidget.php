@@ -1,4 +1,5 @@
 <?php
+// file generated with AI assistance: Claude Code - 2026-08-11 00:00:00 UTC
 /**
  * @link http://www.diemeisterei.de/
  * @copyright Copyright (c) 2018 diemeisterei GmbH, Stuttgart
@@ -104,6 +105,22 @@ class JsonEditorWidget extends BaseWidget
     public $registerSceditorAsset = false;
 
     /**
+     * if true DomPurifyAsset will be registered to make DOMPurify available globally
+     *
+     * @var bool
+     */
+    public $registerDomPurifyAsset = false;
+
+    /**
+     * Options to pass to DOMPurify.setConfig() on the client side.
+     * Only used if registerDomPurifyAsset is true.
+     * See https://github.com/cure53/DOMPurify#configuration
+     *
+     * @var array
+     */
+    public $domPurifyOptions = [];
+
+    /**
      * Configuration for the "flysystem-rest" file picker editor (see
      * src/assets/editors/flysystem-rest.js). When set, it is exposed to the
      * client as the global `window.FLYSYSTEMRESTCONFIG` object and used by the
@@ -121,6 +138,38 @@ class JsonEditorWidget extends BaseWidget
      * @var array|null
      */
     public $flysystemRestConfig = null;
+
+    /**
+     * Configuration for the HTMLPurifier run that is applied to the existing
+     * value when the form is rendered, see {@see purifyRecursive()}.
+     *
+     * Accepts anything `\yii\helpers\HtmlPurifier::process()` accepts:
+     *  - array:    HTMLPurifier config directives
+     *  - \Closure: receives the `\HTMLPurifier_Config` instance, required for
+     *              custom elements/attributes (HTML5 tags, `data-*`)
+     *  - false:    skip purifying on the read path entirely. Only do this if
+     *              the value is purified elsewhere, e.g. on frontend output.
+     *
+     * The default keeps `id` attributes and link targets, which HTMLPurifier
+     * would otherwise drop from stored WYSIWYG content on every render/save
+     * cycle.
+     *
+     * Example for allowing HTML5 elements:
+     *
+     * ```php
+     * 'purifyOptions' => function ($config) {
+     *     $def = $config->getHTMLDefinition(true);
+     *     $def->addElement('figure', 'Block', 'Flow', 'Common');
+     *     $def->addElement('figcaption', 'Block', 'Flow', 'Common');
+     * },
+     * ```
+     *
+     * @var array|\Closure|false
+     */
+    public $purifyOptions = [
+        'Attr.EnableID' => true,
+        'Attr.AllowedFrameTargets' => ['_blank', '_self', '_parent', '_top'],
+    ];
 
     /**
      * If true, a hidden input will be rendered to contain the results
@@ -174,6 +223,10 @@ class JsonEditorWidget extends BaseWidget
         }
 
         parent::init();
+
+        if ($this->registerDomPurifyAsset) {
+            DomPurifyAsset::register($this->getView());
+        }
 
         if ($this->registerCKEditorAsset) {
             CKEditorAsset::register($this->getView());
@@ -252,8 +305,11 @@ class JsonEditorWidget extends BaseWidget
      */
     protected function purifyRecursive($data)
     {
+        if ($this->purifyOptions === false) {
+            return $data;
+        }
         if (is_string($data)) {
-            return HtmlPurifier::process($data);
+            return HtmlPurifier::process($data, $this->purifyOptions);
         }
         if (is_array($data)) {
             return array_map([$this, 'purifyRecursive'], $data);
@@ -319,6 +375,20 @@ class JsonEditorWidget extends BaseWidget
         }
 
         $clientOptions = Json::encode($clientOptions);
+
+        // Configure DOMPurify if asset is registered and options are provided.
+        // Must be POS_END: DomPurifyAsset registers purify.min.js as a regular
+        // asset file, which Yii places at POS_END. Inline POS_END scripts are
+        // rendered after all POS_END files and before POS_READY, so this runs
+        // with `window.DOMPurify` present and still before the editor is built.
+        if ($this->registerDomPurifyAsset && !empty($this->domPurifyOptions)) {
+            $domPurifyOptionsJs = Json::encode($this->domPurifyOptions);
+            $view->registerJs(
+                "if (window.DOMPurify) { window.DOMPurify.setConfig({$domPurifyOptionsJs}); }"
+                . " else { console.warn('[json-editor] DOMPurify not loaded, domPurifyOptions ignored'); }",
+                $view::POS_END
+            );
+        }
 
         // Prepare element IDs
         $widgetId = $this->id;

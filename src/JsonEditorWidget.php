@@ -91,6 +91,14 @@ class JsonEditorWidget extends BaseWidget
     public $registerJoditAsset = false;
 
     /**
+     * Editor that is used for the schema format "html": "ckeditor" (default, backward compatible) or "jodit".
+     * "jodit" requires $registerJoditAsset.
+     *
+     * @var string
+     */
+    public $htmlEditor = 'ckeditor';
+
+    /**
      * if true SimpleMDEAsset will be registered
      *
      * @var bool
@@ -228,6 +236,10 @@ class JsonEditorWidget extends BaseWidget
             DomPurifyAsset::register($this->getView());
         }
 
+        if ($this->htmlEditor === 'jodit' && !$this->registerJoditAsset) {
+            throw new InvalidConfigException('htmlEditor "jodit" requires registerJoditAsset to be true.');
+        }
+
         if ($this->registerCKEditorAsset) {
             CKEditorAsset::register($this->getView());
         }
@@ -256,6 +268,17 @@ class JsonEditorWidget extends BaseWidget
                 $this->getView()->registerJs('window.JSONEditor.defaults.options.jodit = ' . $joditConfig);
             }
 
+        }
+
+        if ($this->htmlEditor !== 'ckeditor') {
+            // unshift puts it in front of the CKEditor resolver (editors/ckeditor.js)
+            $this->getView()->registerJs(
+                'window.JSONEditor.defaults.resolvers.unshift(function (schema) {
+                    if (schema.type === "string" && schema.format === "html") {
+                        return ' . Json::htmlEncode($this->htmlEditor) . ';
+                    }
+                });'
+            );
         }
 
         if ($this->registerSceditorAsset) {

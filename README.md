@@ -134,6 +134,7 @@ $form->field($model, 'example_field')->widget(JsonEditorWidget::className(), [
     'schema' => $example_schema,
     'registerCKEditorAsset' => true, // CKEditorAsset will be registered (default true)
     'registerJoditAsset' => true, // JoditAsset will be registered (default false)
+    'htmlEditor' => 'jodit', // editor for schema format "html": 'ckeditor' (default) or 'jodit', needs registerJoditAsset
     'registerSceditorAsset' => true, // SceditorAsset will be registered (default false)
     'registerSimpleMDEAsset' => true, // SimpleMDEAsset will be registered (default false)
     'clientOptions' => [

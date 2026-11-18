@@ -19,9 +19,11 @@
     "require": {
         "yiisoft/yii2": "~2.0.0",
         "npm-asset/json-editor--json-editor": "^2.5.0",
-        "npm-asset/dompurify": "^3.0.0"
+        "npm-asset/dompurify": "^3.0.0",
+        "select2/select2": "^4.0.13"
     },
     "suggest": {
+        "kartik-v/yii2-widget-select2": "Required for JsonEditorSchemaWidget",
         "2amigos/yii2-selectize-widget": "Recommended assets for selectize plugin in json-editor",
         "2amigos/yii2-ckeditor-widget": "Recommended assets for CKEditor plugin in json-editor"
     },

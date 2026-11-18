@@ -1,5 +1,4 @@
 <?php
-// file generated with AI assistance: Claude Code - [2026-11-16 13:30:00 UTC]
 /**
  * @link http://www.diemeisterei.de/
  * @copyright Copyright (c) 2026 diemeisterei GmbH, Stuttgart
@@ -26,10 +25,15 @@ class Select2Asset extends AssetBundle
 
     public function init()
     {
-        // same file choice as kartik's Select2Asset, so pages with both load select2 only once
+        // same file choice as kartik's Select2Asset, so pages with both load select2 only once;
+        // only as fallback, so js/css stay configurable via assetManager bundles
         $min = YII_DEBUG ? '' : '.min';
-        $this->js = ["js/select2.full{$min}.js"];
-        $this->css = ["css/select2{$min}.css"];
+        if (empty($this->js)) {
+            $this->js = ["js/select2.full{$min}.js"];
+        }
+        if (empty($this->css)) {
+            $this->css = ["css/select2{$min}.css"];
+        }
         parent::init();
     }
 }

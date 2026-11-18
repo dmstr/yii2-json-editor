@@ -50,7 +50,7 @@ class FlysystemEditor extends StringEditor {
 
     this.select2instance = $(this.selectInput).select2({
       width: '100%',
-      theme: this.schema?.options?.select2Theme || 'default',
+      theme: this.schema?.options?.select2Theme || this.jsoneditor.options.select2Theme || 'default',
       ajax: {
         cache: true,
         url: this.searchUrl,

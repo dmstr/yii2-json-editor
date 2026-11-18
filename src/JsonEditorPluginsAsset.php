@@ -12,9 +12,12 @@ namespace dmstr\jsoneditor;
 use yii\web\AssetBundle;
 use dosamigos\selectize\SelectizeAsset;
 use yii\web\JqueryAsset;
+use yii\web\View;
 
 class JsonEditorPluginsAsset extends AssetBundle
 {
+    const KRAJEE_THEME_ASSET = 'kartik\select2\ThemeKrajeeBs3Asset';
+
     public $sourcePath = '@dmstr/jsoneditor/assets/';
 
     public $js = [
@@ -35,4 +38,22 @@ class JsonEditorPluginsAsset extends AssetBundle
         Select2Asset::class,
         JqueryAsset::class
     ];
+
+    public function init()
+    {
+        // keep the krajee look of the flysystem picker where kartik is installed
+        if (class_exists(self::KRAJEE_THEME_ASSET)) {
+            $this->depends[] = self::KRAJEE_THEME_ASSET;
+        }
+        parent::init();
+    }
+
+    public function registerAssetFiles($view)
+    {
+        parent::registerAssetFiles($view);
+        if (class_exists(self::KRAJEE_THEME_ASSET)) {
+            // POS_END: after the json-editor files, before the editors are built at POS_READY
+            $view->registerJs('window.JSONEditor.defaults.options.select2Theme = "krajee-bs3";', View::POS_END, 'json-editor-select2-theme');
+        }
+    }
 }
